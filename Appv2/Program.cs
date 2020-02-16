@@ -1,4 +1,6 @@
 ﻿
+using System.Threading;
+
 namespace KoC
 {
     public struct MainC
@@ -6,7 +8,7 @@ namespace KoC
         public static GameEngine.Game game = new GameEngine.Game();
         static void Main(string[] args)
         {
-            game.Run(10,60);
+            game.Run(1,60);
             
         }
     }

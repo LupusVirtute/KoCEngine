@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
 using System.Runtime;
 using System.Text;
@@ -18,12 +19,10 @@ namespace KoC.GameEngine.Files
 		/// </summary>
 		/// <param name="filePath">Path to file</param>
 		/// <returns>BitmapData of image</returns>
-		public static BitmapData LoadImage(string filePath)
+		public static Bitmap LoadBitMap(string filePath)
 		{
-			Bitmap x = new Bitmap(filePath);
-			BitmapData x2 = x.LockBits(new Rectangle(0, 0, x.Width, x.Height), ImageLockMode.ReadOnly, PixelFormat.Format24bppRgb);
-			x.UnlockBits(x2);
-			return x2;
+			Bitmap bitMap = new Bitmap(filePath);
+			return bitMap;
 		}
 		/// <summary>
 		/// Parses a file to a known model Structure
@@ -54,234 +53,193 @@ namespace KoC.GameEngine.Files
 		/// <summary>
 		/// Switches Indices from different types of polygon Faces to simple triangles
 		/// </summary>
-		/// <param name="x">The pointing Array</param>
+		/// <param name="indicesPointer">The pointing Array</param>
 		/// <returns>Indices of Triangles</returns>
-		private static uint[,] TriangualizeIndices(uint[] x)
+		private static uint[] TriangualizeIndices(uint[] indicesPointer)
 		{
-			int l = x.Length;
-			if (l <= 1)
+			int l = indicesPointer.Length;
+			if (l <= 2)
 			{
 				throw new Exception("Invalid length of indice Array");
 			}
 			else if (l % 4 == 0)
 			{
-				uint[,] x2D = new uint[l / 2, 3];
-				uint x2Didx = 0;
-				for (int i = 0; i < l; i += 4, x2Didx += 2)
+				uint[] newIndiceArray = new uint[(l / 2) * 3];
+				uint newIndiceArrayPointer = 0;
+				for (int i = 0; i < l; i += 4, newIndiceArrayPointer += 2)
 				{
-					x2D[x2Didx, 0] = x[i];
-					x2D[x2Didx, 1] = x[i + 1];
-					x2D[x2Didx, 2] = x[i + 2];
-					x2D[x2Didx + 1, 0] = x[i];
-					x2D[x2Didx + 1, 1] = x[i + 2];
-					x2D[x2Didx + 1, 2] = x[i + 3];
+					newIndiceArray[0 + newIndiceArrayPointer * 3] = indicesPointer[i];
+					newIndiceArray[1 + newIndiceArrayPointer * 3] = indicesPointer[i + 1];
+					newIndiceArray[2 + newIndiceArrayPointer * 3] = indicesPointer[i + 2];
+					newIndiceArray[0 + ((newIndiceArrayPointer + 1) * 3)] = indicesPointer[i];
+					newIndiceArray[1 + ((newIndiceArrayPointer + 1) * 3)] = indicesPointer[i + 2];
+					newIndiceArray[2 + ((newIndiceArrayPointer + 1) * 3)] = indicesPointer[i + 3];
 				}
-				return x2D;
+				return newIndiceArray;
 			}
 			else if (l % 3 == 0)
 			{
-				uint[,] x2D = new uint[l / 3, 3];
-				uint x2Didx = 0;
-				for (int i = 0; i < l; i += 3, x2Didx++)
+				uint[] newIndiceArray = new uint[l];
+				uint newIndiceArrayPointer = 0;
+				for (int i = 0; i < l; i += 3, newIndiceArrayPointer++)
 				{
-					x2D[x2Didx, 0] = x[i];
-					x2D[x2Didx, 1] = x[i + 1];
-					x2D[x2Didx, 2] = x[i + 2];
+					newIndiceArray[0 + newIndiceArrayPointer * 3] = indicesPointer[i];
+					newIndiceArray[1 + newIndiceArrayPointer * 3] = indicesPointer[i + 1];
+					newIndiceArray[2 + newIndiceArrayPointer * 3] = indicesPointer[i + 2];
 				}
-				return x2D;
+				return newIndiceArray;
 			}//Triangle Fan Just not as whole VAO
 			else
 			{
-				uint[,] x2D = new uint[l / 2, 3];
-				uint x2Didx = 0;
-				x2D[x2Didx, 0] = x[0];
-				x2D[x2Didx, 1] = x[1];
-				x2D[x2Didx, 2] = x[2];
-				x2Didx++;
-				for (int i = 2; i < l; i++, x2Didx++)
+				uint[] newIndiceArray = new uint[(l / 2) * 3];
+				uint newIndiceArrayPointer = 0;
+				newIndiceArray[0 + newIndiceArrayPointer * 3] = indicesPointer[0];
+				newIndiceArray[1 + newIndiceArrayPointer * 3] = indicesPointer[1];
+				newIndiceArray[2 + newIndiceArrayPointer * 3] = indicesPointer[2];
+				newIndiceArrayPointer++;
+				for (int i = 2; i < l; i++, newIndiceArrayPointer++)
 				{
-					x2D[x2Didx, 0] = x[0];
-					x2D[x2Didx, 1] = x[i - 1];
-					x2D[x2Didx, 2] = x[i];
+					newIndiceArray[0 + (newIndiceArrayPointer * 3)] = indicesPointer[0];
+					newIndiceArray[1 + (newIndiceArrayPointer * 3)] = indicesPointer[i - 1];
+					newIndiceArray[2 + (newIndiceArrayPointer * 3)] = indicesPointer[i];
 				}
-				return x2D;
+				return newIndiceArray;
 			}
 		}
 		public static Mesh[] ParseObjFile(string filePath)
 		{
 
 			List<Mesh> meshList = new List<Mesh>();
-			string[] strArr = File.ReadAllLines(filePath);
+			string DataString = string.Empty;
 			int lastindx = 1;
-			for (int i = 0; i < strArr.Length; i++)
-			{
-				if (0 >= strArr[i].Length)
-				{
-					continue;
-				}
-				string name = string.Empty;
-				List<Vector3> normals = new List<Vector3>();
-				List<Vector2> texcoords = new List<Vector2>();
-				List<Vector3> Vlist = new List<Vector3>();
-				List<uint> verListP = new List<uint>();
-				List<uint> texCoorP = new List<uint>();
-				List<uint> normalP = new List<uint>();
-				if (strArr[i][0] == 'o')
-				{
-					name = strArr[i].Replace("o ", "");
-					i++;
-					for (; i < strArr.Length; i++)
-					{
-						if (strArr.Length == i+1)
-						{
-							uint[] x = verListP.ToArray();
-							uint[] y = texCoorP.ToArray();
-							uint[] z = normalP.ToArray();
-							uint[,] x2 = TriangualizeIndices(x);
-							x = new uint[x2.Length];
-							int ii = 0;
-							for (int i2 = 0, l2 = x2.GetLength(0); i2 < l2; i2++, ii += 3)
-							{
-								x[ii] = x2[i2, 0];
-								x[ii + 1] = x2[i2, 1];
-								x[ii + 2] = x2[i2, 2];
-							}
-							x2 = TriangualizeIndices(y);
-							y = new uint[x2.Length];
-							ii = 0;
-							for (int i2 = 0, l2 = x2.GetLength(0); i2 < l2; i2++, ii += 3)
-							{
-								y[ii] = x2[i2, 0];
-								y[ii + 1] = x2[i2, 1];
-								y[ii + 2] = x2[i2, 2];
-							}
-							x2 = TriangualizeIndices(z);
-							z = new uint[x2.Length];
-							ii = 0;
-							for (int i2 = 0, l2 = x2.GetLength(0); i2 < l2; i2++, ii += 3)
-							{
-								z[ii] = x2[i2, 0];
-								z[ii + 1] = x2[i2, 1];
-								z[ii + 2] = x2[i2, 2];
-							}
-							meshList.Add(new Mesh(
-								Vlist.ToArray(),
-								normals.ToArray(),
-								texcoords.ToArray(),
-								x,
-								y,
-								z
-								));
+			string nextObj = string.Empty;
 
-							lastindx += Vlist.Count;
-							i--;
-							break;
-						}
-						string[] modArr = strArr[i].Split(' ');
-						if (modArr[0].Length >= 1 && !modArr[0].Contains("#"))
+			CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
+			ci.NumberFormat.CurrencyDecimalSeparator = ".";
+
+			using (StreamReader str = new StreamReader(filePath))
+			{
+				while((DataString = str.ReadLine()) != null)
+				{
+					if (DataString[0] == '#')
+					{
+						continue;
+					}
+					string name = string.Empty;
+					List<Vector3> normals = new List<Vector3>();
+					List<Vector2> texcoords = new List<Vector2>();
+					List<Vector3> Vlist = new List<Vector3>();
+					List<uint> verListP = new List<uint>();
+					List<uint> texCoorP = new List<uint>();
+					List<uint> normalP = new List<uint>();
+					if (DataString[0] == 'o' || !string.IsNullOrEmpty(nextObj))
+					{
+						name = DataString[0] == 'o' ? DataString.Replace("o ", "") : nextObj;
+						while(true)
 						{
-							if (modArr[0].Length == 1 && modArr[0][0] == 'v')
+							DataString = str.ReadLine();
+							if (DataString == null)
 							{
-								Vlist.Add(
-									new Vector3(
-										float.Parse(modArr[1].Replace('.', ',')),
-										float.Parse(modArr[2].Replace('.', ',')),
-										float.Parse(modArr[3].Replace('.', ','))
-										)
-									);
-							}
-							else if (modArr[0].StartsWith("vt"))
-							{
-								texcoords.Add(
-								new Vector2(
-									float.Parse(modArr[1].Replace('.', ',')),
-									float.Parse(modArr[2].Replace('.', ','))
-									)
-								);
-							}
-							else if (modArr[0].StartsWith("vn"))
-							{
-								normals.Add(
-								new Vector3(
-									float.Parse(modArr[1].Replace('.', ',')),
-									float.Parse(modArr[2].Replace('.', ',')),
-									float.Parse(modArr[3].Replace('.', ','))
-									)
-								);
-							}
-							else if (modArr[0].StartsWith("usemtl"))
-							{
-							}
-							else if (modArr[0].StartsWith("s"))
-							{
-							}
-							else if (modArr[0].StartsWith("f"))
-							{
-								uint[] x = new uint[modArr.Length - 1];
-								uint[] x1 = new uint[modArr.Length - 1];
-								uint[] x2 = new uint[modArr.Length - 1];
-								for (int b = 1, xyy = modArr.Length; b < xyy; b++)
-								{
-									string[] f = modArr[b].Split('/');
-									x[b - 1] = Convert.ToUInt32(int.Parse(f[0]) - lastindx);
-									x1[b - 1] = Convert.ToUInt32(int.Parse(f[1]) - lastindx);
-									x2[b - 1] = Convert.ToUInt32(int.Parse(f[2]) - lastindx);
-								}
-								for (int i2 = 0, l2 = x.Length; i2 < l2; i2++)
-								{
-									verListP.Add(x[i2]);
-									texCoorP.Add(x1[i2]);
-									normalP.Add(x2[i2]);
-								}
-							}
-							else if (modArr[0].StartsWith("o"))
-							{
-								uint[] x = verListP.ToArray();
-								uint[] y = texCoorP.ToArray();
-								uint[] z = normalP.ToArray();
-								uint[,] x2 = TriangualizeIndices(x);
-								x = new uint[x2.Length];
-								int ii = 0;
-								for (int i2 = 0, l2 = x2.GetLength(0); i2 < l2; i2++, ii += 3)
-								{
-									y[ii] = x2[i2, 0];
-									y[ii + 1] = x2[i2, 1];
-									y[ii + 2] = x2[i2, 2];
-								}
-								x2 = TriangualizeIndices(y);
-								y = new uint[x2.Length];
-								ii = 0;
-								for (int i2 = 0, l2 = x2.GetLength(0); i2 < l2; i2++, ii += 3)
-								{
-									x[ii] = x2[i2, 0];
-									x[ii + 1] = x2[i2, 1];
-									x[ii + 2] = x2[i2, 2];
-								}
-								x2 = TriangualizeIndices(z);
-								z = new uint[x2.Length];
-								ii = 0;
-								for (int i2 = 0, l2 = x2.GetLength(0); i2 < l2; i2++, ii += 3)
-								{
-									z[ii] = x2[i2, 0];
-									z[ii + 1] = x2[i2, 1];
-									z[ii + 2] = x2[i2, 2];
-								}
+								uint[] verticesPointer = verListP.ToArray();
+								verListP.Clear();
+								uint[] texCoordsP = texCoorP.ToArray();
+								texCoorP.Clear();
+								uint[] normalPointers = normalP.ToArray();
+								normalP.Clear();
+
 								meshList.Add(new Mesh(
 									Vlist.ToArray(),
 									normals.ToArray(),
 									texcoords.ToArray(),
-									x,
-									y,
-									z
+									TriangualizeIndices(verticesPointer),
+									TriangualizeIndices(texCoordsP),
+									TriangualizeIndices(normalPointers)
 									));
+
 								lastindx += Vlist.Count;
-								i--;
+								nextObj = string.Empty;
 								break;
+							}
+							string[] modArr = DataString.Split(' ');
+							DataString = string.Empty;
+							if (modArr[0].Length >= 1 && !modArr[0].Contains("#"))
+							{
+								if (modArr[0].Length == 1 && modArr[0][0] == 'v')
+								{
+									Vlist.Add(
+										new Vector3(
+											float.Parse(modArr[1], NumberStyles.Any, ci),
+											float.Parse(modArr[2], NumberStyles.Any, ci),
+											float.Parse(modArr[3], NumberStyles.Any, ci)
+											)
+										);
+								}
+								else if (modArr[0].StartsWith("vt"))
+								{
+									texcoords.Add(
+									new Vector2(
+										float.Parse(modArr[1], NumberStyles.Any, ci),
+										float.Parse(modArr[2], NumberStyles.Any, ci)
+										)
+									);
+								}
+								else if (modArr[0].StartsWith("vn"))
+								{
+									normals.Add(
+									new Vector3(
+										float.Parse(modArr[1], NumberStyles.Any, ci),
+										float.Parse(modArr[2], NumberStyles.Any, ci),
+										float.Parse(modArr[3], NumberStyles.Any, ci)
+										)
+									);
+								}
+								else if (modArr[0].StartsWith("usemtl"))
+								{
+								}
+								else if (modArr[0].StartsWith("s"))
+								{
+								}
+								else if (modArr[0].StartsWith("f"))
+								{
+									uint[] x = new uint[modArr.Length - 1];
+									uint[] x1 = new uint[modArr.Length - 1];
+									uint[] x2 = new uint[modArr.Length - 1];
+									for (int b = 1, xyy = modArr.Length; b < xyy; b++)
+									{
+										string[] f = modArr[b].Split('/');
+										x[b - 1] = Convert.ToUInt32(int.Parse(f[0]) - lastindx);
+										x1[b - 1] = Convert.ToUInt32(int.Parse(f[1]) - lastindx);
+										x2[b - 1] = Convert.ToUInt32(int.Parse(f[2]) - lastindx);
+									}
+									for (int i2 = 0, l2 = x.Length; i2 < l2; i2++)
+									{
+										verListP.Add(x[i2]);
+										texCoorP.Add(x1[i2]);
+										normalP.Add(x2[i2]);
+									}
+								}
+								else if (modArr[0].StartsWith("o"))
+								{
+									meshList.Add(new Mesh(
+											Vlist.ToArray(),
+											normals.ToArray(),
+											texcoords.ToArray(),
+											TriangualizeIndices(verListP.ToArray()),
+											TriangualizeIndices(texCoorP.ToArray()),
+											TriangualizeIndices(normalP.ToArray())
+										));
+									lastindx += Vlist.Count;
+									nextObj = modArr[1];
+									break;
+								}
 							}
 						}
 					}
 				}
 			}
+			
+			// TODO:
+			// Save mesh in new File Format
 			return meshList.ToArray();
 		}
 	}

@@ -1,28 +1,20 @@
-﻿#if (DEBUG)
-#undef DEBUG
-#define DEBUG
-#else
-#define DEBUG
-#endif
-using OpenTK;
+﻿using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using OpenTK.Graphics;
 using KoC.GameEngine.Files;
 using KoC.GameEngine.Draw;
 using System.Runtime;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace KoC.GameEngine
 {
 	public sealed class Game : GameWindow
 	{
-		private bool _bortho = true;
-		private int _program;
+		private bool powerLimiter;
 		private Mesh[] m;
-		Mesh meshr;
-		private Matrix4 _modelView;
-		private Matrix4 projection;
-		private Matrix4 ortho;
+		public RenderManager mainRender;
 		//Constructor
 		public Game() : base(
 				500,
@@ -37,43 +29,68 @@ namespace KoC.GameEngine
 			)
 		{
 			Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
+			powerLimiter = true;
 		}
-
-		public void SwitchOrtho(){
-			_bortho = !_bortho;
+		/// <summary>
+		/// Switches Power Saving Mode if on can cause stutter.<br/>
+		/// But if off and user have bad drivers it can create performance issues
+		/// 
+		/// </summary>
+		public void SwitchPowerLimiter()
+		{
+			powerLimiter = !powerLimiter;
 		}
-		public bool IsOrtho(){
-			return _bortho;
+		public bool IsPowerSaved()
+		{ 
+			return powerLimiter; 
+		}
+		public void SwitchVSync(VSyncMode vsync)
+		{
+			VSync = vsync;
 		}
 
 		//Overrides
 		#region Overrides
-		public override WindowState WindowState { get => base.WindowState; set => base.WindowState = value; }
 		protected override void OnLoad(EventArgs e)
 		{
-			projection = Matrix4.CreatePerspectiveFieldOfView(QuickMaths.DegreeToRadian(120.0d),Width/Height,.1f,1000.0f);
-			ortho = Matrix4.CreateOrthographicOffCenter(0f,Width,0f,Height,0.1f, 1000.0f);
-
+			Thread.Sleep(1);
 			CursorVisible = true;
 			int[] shaders = new int[2];
-			shaders[0] = FileCompiler.CompileShader(ShaderType.VertexShader, @"C:\Users\Marcin\source\repos\Appv2\Appv2\Shaders\verShader.vert");
-			shaders[1] = FileCompiler.CompileShader(ShaderType.FragmentShader, @"C:\Users\Marcin\source\repos\Appv2\Appv2\Shaders\fragShader.frag");
+			shaders[0] = FileCompiler.CompileShader(ShaderType.VertexShader, @"Shaders\verShader.vert");
+			shaders[1] = FileCompiler.CompileShader(ShaderType.FragmentShader, @"Shaders\fragShader.frag");
 
-			_program = FileCompiler.CreateProgram(shaders);
+			int _program = FileCompiler.CreateProgram(shaders);
 			GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-			GL.CullFace(CullFaceMode.Front);
+			//GL.FrontFace(FrontFaceDirection.Cw);
+			//GL.CullFace(CullFaceMode.Front);
 
 			GL.PatchParameter(PatchParameterInt.PatchVertices, 3);
 			GL.Enable(EnableCap.DepthTest);
+			GL.DepthFunc(DepthFunction.Less);
 
 			Closed += OnClosed;
 			m = FileParser.ParseFile("iron_anvil.obj");
 			//m = FileParser.ParseFile("C:/Users/Marcin/Desktop/cube.obj");
 			//m[0].Move(1.0f,2.0f,0.0f);
-			ref Mesh meshr = ref m[0];
-			this.meshr = m[0];
 			GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
 			GC.Collect();
+			List<D3Obj> d3objli = new List<D3Obj>();
+			for(int i = 0; i < m.Length; i++)
+			{
+				d3objli.Add(
+					new D3Obj(
+						ref m[i],
+						new Vector3(0f,0f,-10f),
+						string.Empty
+						)
+					);
+			}
+			Vector3 CameraPos		= new Vector3(1.0f, 1.0f, -10.0f);
+			Vector3 CameraTarget	= new Vector3(0.45f, 0.0f, 1.0f);
+			Vector3 CameraUp		= new Vector3(0.0f, 1.0f, 0.0f);
+			mainRender = new RenderManager(d3objli, new Player.Camera(CameraPos, CameraTarget, CameraUp),_program);
+			mainRender.ReloadProjections(Width,Height);
+			base.OnLoad(e);
 		}
 		private void OnClosed(object s, EventArgs e)
 		{
@@ -81,7 +98,7 @@ namespace KoC.GameEngine
 		}
 		public override void Exit()
 		{
-			GL.DeleteProgram(_program);
+			mainRender.Delete();
 			for (int i = 0, l = m.Length; i < l; i++)
 			{
 				m[i].Dispose();
@@ -96,63 +113,32 @@ namespace KoC.GameEngine
 			if (Width == 0) asp = Height;
 			else if (Height == 0) asp = Width;
 			else if (Width > Height) asp = Width / Height;
-			else asp = Height / Width; 
-			projection = Matrix4.CreatePerspectiveFieldOfView(QuickMaths.DegreeToRadian(120.0d), asp, 1.0f, 100.0f);
-			ortho = Matrix4.CreateOrthographicOffCenter(0f, Width, 0f, Height, 0.1f, 1000.0f);
-
+			else asp = Height / Width;
+			mainRender.ReloadProjections(asp);
+			base.OnResize(e);
 		}
 		protected override void OnUpdateFrame(FrameEventArgs e)
 		{
 			InputHandler.HandleKeyboard();
+			base.OnUpdateFrame(e);
 		}
-		double _time;
-		bool switchM = false;
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
-			_time += e.Time;
-			if((int)_time % 360 == 0)
-			{
-				switchM = !switchM;
-			}
+			if(powerLimiter) Thread.Sleep(15);
+
 			Title = $"(Vsync : {VSync}) (FPS : {1f / e.Time:0})";
 
-			Color4 backColor = new Color4(0, 0, 80, 255);
-			GL.ClearColor(backColor);
-			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-			Matrix4 tr = Matrix4.CreateTranslation(0.0f, 0.0f, -10f);
-			_modelView = tr;
-
-			//Switch ortho or projection
-			
-			GL.UseProgram(_program);
-			if (!_bortho)
-			{
-				GL.UniformMatrix4(20, false, ref ortho);
-			}
-			else
-			{
-				GL.UniformMatrix4(20, false, ref projection);
-			}
-
-			GL.UniformMatrix4(21, false, ref _modelView);
-			/*
-			 * if (!switchM) meshr.Move(0.0001f, 0.0001f, -0.0001f);
-			else meshr.Move(-0.0001f, -0.0001f, 0.0001f);
-			m[0].Rotate(0.01, new sbyte[3] { 1, 1, 1 });
-			*/
-			m[0].Render();
-			//UI - TODO
+			mainRender.RenderCall();
 
 			SwapBuffers();
 			
 			//Error Catch
 			#if (DEBUG)
-			ErrorCode b = GL.GetError();
-			if (!b.ToString().Equals("NoError"))
-			{
-				throw new Exception(b.ToString());
-			}
+				ErrorCode b = GL.GetError();
+				if (!b.ToString().Equals("NoError"))
+				{
+					throw new Exception(b.ToString());
+				}
 			#endif
 		}
 		#endregion Overrides
