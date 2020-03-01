@@ -10,8 +10,8 @@ Koxes Of Code Team
 - [x] Rendering Objects instead of Mesh
 - [x] Texture Implentation
 - [x] Simple Camera Object and Interface
-- [ ] Font Rendering  
-- [ ] Camera Movement and Rotation
+- [ ] Font Rendering  ~80% Done
+- [ ] Camera Movement and Rotation ~50% Done
 - [ ] Checking Points if they are in camera view  
 - [ ] Possible Optimizations  
 - [ ] Clean Beautify Code  
