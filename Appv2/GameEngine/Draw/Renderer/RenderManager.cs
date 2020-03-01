@@ -1,47 +1,78 @@
-﻿using KoC.GameEngine.Player;
+﻿using KoC.GameEngine.Draw.Text;
+using KoC.GameEngine.Files;
+using KoC.GameEngine.Player;
 using OpenTK;
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
 using System;
 using System.Collections.Generic;
 
-namespace KoC.GameEngine.Draw
+namespace KoC.GameEngine.Draw.Renderer
 {
-	public sealed class RenderManager
+	public sealed class RenderManager : IRenderer
 	{
-		private List<D3Obj> Objects = new List<D3Obj>();
+		private List<Obj3D> Objects = new List<Obj3D>();
 		private float _FOV;
-		public float FOV {
+		private EngineText text;
+		public float FOV
+		{
 			get
 			{
 				return _FOV;
 			}
 			set
 			{
-				if(value > 179)
+				if (value > 179)
 				{
-					Console.WriteLine("FOV can't be Higher than 179");
+					throw new ArgumentException("Invalid value for FOV");
 				}
 				else _FOV = value;
 			}
 		}
-		public float renderDistance;
+		public float RenderDistance
+		{
+			get
+			{
+				return renderDistance;
+			}
+			set
+			{
+				if (renderDistance <= 0.1f)
+				{
+					throw new ArgumentException("Invalid value for render distance");
+				}
+				else renderDistance = value;
+			}
+		}
+		public ICamera GetCamera
+		{
+			get
+			{
+				return camera;
+			}
+		}
+		private float renderDistance;
 		private ICamera camera;
 		private Matrix4 projection;
 		private Matrix4 ortho;
 		private bool _bortho = false;
 		private int _program;
+		private int _TxTProgram;
 		private readonly int loc = 20;
 		private readonly int camLoc = 21;
 		private readonly int gSampLoc;
 		public RenderManager()
 		{
-			FOV = 90.0f;
+			/*int[] shaders = new int[2];
+			shaders[0] = FileCompiler.CompileShader(ShaderType.VertexShader, @"Shaders\TxtVerShader.vert");
+			shaders[1] = FileCompiler.CompileShader(ShaderType.FragmentShader, @"Shaders\TxtFragShader.frag");
+			_TxTProgram = FileCompiler.CreateProgram(shaders);
+			text = new EngineText(new KoCFont(new System.Drawing.Font("Consolas",6f)),"YES FINALLY I CAN JERK OFF TO THIS",_TxTProgram,new float[2] { 32f,32f });
+			*/FOV = 90.0f;
 			renderDistance = 100.0f;
 			_program = 0;
 			ReloadProjections(MainC.game.Width / MainC.game.Height);
 		}
-		public RenderManager(List<D3Obj> Objects,ICamera camera,int program = 0)
+		public RenderManager(List<Obj3D> Objects, ICamera camera, int program = 0)
 		{
 			this.Objects = Objects;
 			this.camera = camera;
@@ -59,8 +90,15 @@ namespace KoC.GameEngine.Draw
 			if (GL.IsProgram(_program))
 			{
 
-				gSampLoc = GL.GetUniformLocation(_program,"gSampler");
+				gSampLoc = GL.GetUniformLocation(_program, "gSampler");
 			}
+			int[] shaders = new int[2];
+			shaders[0] = FileCompiler.CompileShader(ShaderType.VertexShader, "Shaders/TxtVerShader.vert");
+			shaders[1] = FileCompiler.CompileShader(ShaderType.FragmentShader, "Shaders/TxtFragShader.frag");
+			_TxTProgram = FileCompiler.CreateProgram(shaders);
+			StaticHolder.CheckGLError();
+
+			text = new EngineText(new KoCFont(new System.Drawing.Font("Consolas", 6f)), "YES FINALLY I CAN JERK OFF TO THIS", _TxTProgram, new float[2] { 32f, 32f });
 			ReloadProjections(MainC.game.Width / MainC.game.Height);
 		}
 		public void SetProgram(int program)
@@ -89,10 +127,6 @@ namespace KoC.GameEngine.Draw
 		}
 		public void RenderCall()
 		{
-			Color4 backColor = new Color4(0, 0, 80, 255);
-			GL.ClearColor(backColor);
-			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
 			//Switch ortho or perspectiveFOV
 
 			if (GL.IsProgram(_program)) GL.UseProgram(_program);
@@ -110,8 +144,13 @@ namespace KoC.GameEngine.Draw
 			{
 				Objects[i].RenderObj(gSampLoc);
 			}
+			StaticHolder.CheckGLError();
+
 			//UI - TODO
+			GL.UseProgram(_TxTProgram);
 			GL.UniformMatrix4(loc, false, ref ortho);
+			text.Render();
+			StaticHolder.CheckGLError();
 
 		}
 		public void Delete()

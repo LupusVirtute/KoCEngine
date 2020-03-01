@@ -1,4 +1,5 @@
 ﻿using KoC.GameEngine.Draw;
+using KoC.GameEngine.Files.Comparators;
 using OpenTK;
 using System;
 using System.Collections.Generic;
@@ -6,9 +7,10 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime;
 using System.Text;
-
+using static KoC.GameEngine.Files.Comparators.FacePrefixParser;
 
 namespace KoC.GameEngine.Files
 {
@@ -55,7 +57,7 @@ namespace KoC.GameEngine.Files
 		/// </summary>
 		/// <param name="indicesPointer">The pointing Array</param>
 		/// <returns>Indices of Triangles</returns>
-		private static uint[] TriangualizeIndices(uint[] indicesPointer)
+		private static uint[] TriangualizePoints(uint[] indicesPointer)
 		{
 			int l = indicesPointer.Length;
 			if (l <= 2)
@@ -106,12 +108,25 @@ namespace KoC.GameEngine.Files
 				return newIndiceArray;
 			}
 		}
+		#region quickPrefixes
+		const char commentObj = '#';
+		#endregion quickPrefixes
 		public static Mesh[] ParseObjFile(string filePath)
 		{
-
+			FacePrefixParser fPrefixParser = new FacePrefixParser();
+			List<IPrefixParser> prefixParsers = new List<IPrefixParser>
+			{
+				new VerticePrefixParser(),
+				new TextureCoordsPrefixParser(),
+				fPrefixParser,
+				new NormalsPrefixParser(),
+				new ObjPrefixParser(),
+				new MaterialPrefixParser(),
+				new SmoothShadingPrefixParser()
+			};
 			List<Mesh> meshList = new List<Mesh>();
 			string DataString = string.Empty;
-			int lastindx = 1;
+			fPrefixParser.lastIndx = 1;
 			string nextObj = string.Empty;
 
 			CultureInfo ci = (CultureInfo)CultureInfo.CurrentCulture.Clone();
@@ -119,125 +134,129 @@ namespace KoC.GameEngine.Files
 
 			using (StreamReader str = new StreamReader(filePath))
 			{
-				while((DataString = str.ReadLine()) != null)
+				while ((DataString = str.ReadLine()) != null)
 				{
-					if (DataString[0] == '#')
+					if (DataString[0] == commentObj)
 					{
 						continue;
 					}
 					string name = string.Empty;
 					List<Vector3> normals = new List<Vector3>();
-					List<Vector2> texcoords = new List<Vector2>();
-					List<Vector3> Vlist = new List<Vector3>();
-					List<uint> verListP = new List<uint>();
-					List<uint> texCoorP = new List<uint>();
-					List<uint> normalP = new List<uint>();
+					List<Vector2> textureCoords = new List<Vector2>();
+					List<Vector3> verticesList = new List<Vector3>();
+					List<uint> verListPoint = new List<uint>();
+					List<uint> textureCoordsPoint = new List<uint>();
+					List<uint> normalPoint = new List<uint>();
 					if (DataString[0] == 'o' || !string.IsNullOrEmpty(nextObj))
 					{
 						name = DataString[0] == 'o' ? DataString.Replace("o ", "") : nextObj;
-						while(true)
+						while (true)
 						{
 							DataString = str.ReadLine();
 							if (DataString == null)
 							{
-								uint[] verticesPointer = verListP.ToArray();
-								verListP.Clear();
-								uint[] texCoordsP = texCoorP.ToArray();
-								texCoorP.Clear();
-								uint[] normalPointers = normalP.ToArray();
-								normalP.Clear();
+								uint[] verticesPointer = verListPoint.ToArray();
+								verListPoint.Clear();
+								uint[] texCoordsP = textureCoordsPoint.ToArray();
+								textureCoordsPoint.Clear();
+								uint[] normalPointers = normalPoint.ToArray();
+								normalPoint.Clear();
 
 								meshList.Add(new Mesh(
-									Vlist.ToArray(),
+									verticesList.ToArray(),
 									normals.ToArray(),
-									texcoords.ToArray(),
-									TriangualizeIndices(verticesPointer),
-									TriangualizeIndices(texCoordsP),
-									TriangualizeIndices(normalPointers)
+									textureCoords.ToArray(),
+									TriangualizePoints(verticesPointer),
+									TriangualizePoints(texCoordsP),
+									TriangualizePoints(normalPointers)
 									));
 
-								lastindx += Vlist.Count;
+								fPrefixParser.lastIndx += verticesList.Count;
 								nextObj = string.Empty;
 								break;
 							}
 							string[] modArr = DataString.Split(' ');
 							DataString = string.Empty;
-							if (modArr[0].Length >= 1 && !modArr[0].Contains("#"))
+							//Checks if is there any need for checking values
+							if (modArr[0].Length >= 1 && !modArr[0].Contains($"{commentObj}"))
 							{
-								if (modArr[0].Length == 1 && modArr[0][0] == 'v')
+								var parser = prefixParsers.FirstOrDefault(p => p.IsMatch(modArr));
+								//To just stop this loop running we can break it legs :)
+								bool legs = false;
+								switch (parser.prefixId)
 								{
-									Vlist.Add(
-										new Vector3(
-											float.Parse(modArr[1], NumberStyles.Any, ci),
-											float.Parse(modArr[2], NumberStyles.Any, ci),
-											float.Parse(modArr[3], NumberStyles.Any, ci)
-											)
+									case ObjPrefixes.Vertice:
+									{
+
+										verticesList.Add(
+												parser.Parse<Vector3>(modArr)
+											);
+										break;
+									}
+									case ObjPrefixes.Face:
+									{
+										uint[][] FaceArray = parser.Parse<uint[][]>(modArr);
+										for (int i2 = 0, l2 = FaceArray[0].Length; i2 < l2; i2++)
+										{
+											verListPoint.Add(FaceArray[0][i2]);
+											textureCoordsPoint.Add(FaceArray[1][i2]);
+											normalPoint.Add(FaceArray[2][i2]);
+										}
+										break;
+									}
+									case ObjPrefixes.Material:
+									{
+
+										break;
+									}
+									case ObjPrefixes.TextureCoordinates:
+									{
+										textureCoords.Add(
+											parser.Parse<Vector2>(modArr)
 										);
-								}
-								else if (modArr[0].StartsWith("vt"))
-								{
-									texcoords.Add(
-									new Vector2(
-										float.Parse(modArr[1], NumberStyles.Any, ci),
-										float.Parse(modArr[2], NumberStyles.Any, ci)
-										)
-									);
-								}
-								else if (modArr[0].StartsWith("vn"))
-								{
-									normals.Add(
-									new Vector3(
-										float.Parse(modArr[1], NumberStyles.Any, ci),
-										float.Parse(modArr[2], NumberStyles.Any, ci),
-										float.Parse(modArr[3], NumberStyles.Any, ci)
-										)
-									);
-								}
-								else if (modArr[0].StartsWith("usemtl"))
-								{
-								}
-								else if (modArr[0].StartsWith("s"))
-								{
-								}
-								else if (modArr[0].StartsWith("f"))
-								{
-									uint[] x = new uint[modArr.Length - 1];
-									uint[] x1 = new uint[modArr.Length - 1];
-									uint[] x2 = new uint[modArr.Length - 1];
-									for (int b = 1, xyy = modArr.Length; b < xyy; b++)
-									{
-										string[] f = modArr[b].Split('/');
-										x[b - 1] = Convert.ToUInt32(int.Parse(f[0]) - lastindx);
-										x1[b - 1] = Convert.ToUInt32(int.Parse(f[1]) - lastindx);
-										x2[b - 1] = Convert.ToUInt32(int.Parse(f[2]) - lastindx);
+										break;
 									}
-									for (int i2 = 0, l2 = x.Length; i2 < l2; i2++)
+									case ObjPrefixes.Normals:
 									{
-										verListP.Add(x[i2]);
-										texCoorP.Add(x1[i2]);
-										normalP.Add(x2[i2]);
+										normals.Add(
+											parser.Parse<Vector3>(modArr)
+										);
+										break;
 									}
-								}
-								else if (modArr[0].StartsWith("o"))
-								{
-									meshList.Add(new Mesh(
-											Vlist.ToArray(),
+									case ObjPrefixes.Object:
+									{
+										meshList.Add(new Mesh(
+											verticesList.ToArray(),
 											normals.ToArray(),
-											texcoords.ToArray(),
-											TriangualizeIndices(verListP.ToArray()),
-											TriangualizeIndices(texCoorP.ToArray()),
-											TriangualizeIndices(normalP.ToArray())
+											textureCoords.ToArray(),
+											TriangualizePoints(verListPoint.ToArray()),
+											TriangualizePoints(textureCoordsPoint.ToArray()),
+											TriangualizePoints(normalPoint.ToArray())
 										));
-									lastindx += Vlist.Count;
-									nextObj = modArr[1];
-									break;
+										fPrefixParser.lastIndx += verticesList.Count;
+										nextObj = modArr[1];
+										//we are telling legs to prepare for being breaked
+										legs = true;
+										break;
+									}
+									case ObjPrefixes.SmoothShading:
+									{
+
+										break;
+									}
+									default:
+									{
+										throw new Exception("Unrecognized Instruction");
+									}
 								}
+								//Break the legs
+								if (legs) break;
 							}
 						}
 					}
 				}
 			}
-			
+
 			// TODO:
 			// Save mesh in new File Format
 			return meshList.ToArray();

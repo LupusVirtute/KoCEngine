@@ -7,6 +7,7 @@ using KoC.GameEngine.Draw;
 using System.Runtime;
 using System.Collections.Generic;
 using System.Threading;
+using KoC.GameEngine.Draw.Renderer;
 
 namespace KoC.GameEngine
 {
@@ -14,7 +15,7 @@ namespace KoC.GameEngine
 	{
 		private bool powerLimiter;
 		private Mesh[] m;
-		public RenderManager mainRender;
+
 		//Constructor
 		public Game() : base(
 				500,
@@ -30,10 +31,11 @@ namespace KoC.GameEngine
 		{
 			Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
 			powerLimiter = true;
+			StaticHolder.textureHandler = new TextureHandler();
 		}
 		/// <summary>
 		/// Switches Power Saving Mode if on can cause stutter.<br/>
-		/// But if off and user have bad drivers it can create performance issues
+		/// If off users with bad drivers can have performance issues
 		/// 
 		/// </summary>
 		public void SwitchPowerLimiter()
@@ -53,7 +55,6 @@ namespace KoC.GameEngine
 		#region Overrides
 		protected override void OnLoad(EventArgs e)
 		{
-			Thread.Sleep(1);
 			CursorVisible = true;
 			int[] shaders = new int[2];
 			shaders[0] = FileCompiler.CompileShader(ShaderType.VertexShader, @"Shaders\verShader.vert");
@@ -74,22 +75,26 @@ namespace KoC.GameEngine
 			//m[0].Move(1.0f,2.0f,0.0f);
 			GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
 			GC.Collect();
-			List<D3Obj> d3objli = new List<D3Obj>();
+
+			List<Obj3D> d3objli = new List<Obj3D>();
 			for(int i = 0; i < m.Length; i++)
 			{
 				d3objli.Add(
-					new D3Obj(
+					new Obj3D(
 						ref m[i],
 						new Vector3(0f,0f,-10f),
 						string.Empty
 						)
 					);
 			}
+
 			Vector3 CameraPos		= new Vector3(1.0f, 1.0f, -10.0f);
 			Vector3 CameraTarget	= new Vector3(0.45f, 0.0f, 1.0f);
 			Vector3 CameraUp		= new Vector3(0.0f, 1.0f, 0.0f);
-			mainRender = new RenderManager(d3objli, new Player.Camera(CameraPos, CameraTarget, CameraUp),_program);
-			mainRender.ReloadProjections(Width,Height);
+
+			StaticHolder.mainRender = new RenderManager(d3objli, new Player.Camera(CameraPos, CameraTarget, CameraUp),_program);
+			StaticHolder.mainRender.ReloadProjections(Width,Height);
+
 			base.OnLoad(e);
 		}
 		private void OnClosed(object s, EventArgs e)
@@ -98,7 +103,7 @@ namespace KoC.GameEngine
 		}
 		public override void Exit()
 		{
-			mainRender.Delete();
+			StaticHolder.mainRender.Delete();
 			for (int i = 0, l = m.Length; i < l; i++)
 			{
 				m[i].Dispose();
@@ -114,7 +119,7 @@ namespace KoC.GameEngine
 			else if (Height == 0) asp = Width;
 			else if (Width > Height) asp = Width / Height;
 			else asp = Height / Width;
-			mainRender.ReloadProjections(asp);
+			StaticHolder.mainRender.ReloadProjections(asp);
 			base.OnResize(e);
 		}
 		protected override void OnUpdateFrame(FrameEventArgs e)
@@ -125,21 +130,17 @@ namespace KoC.GameEngine
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
 			if(powerLimiter) Thread.Sleep(15);
+			Color4 backColor = new Color4(0, 0, 80, 255);
+			GL.ClearColor(backColor);
+			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
 			Title = $"(Vsync : {VSync}) (FPS : {1f / e.Time:0})";
 
-			mainRender.RenderCall();
+			StaticHolder.mainRender.RenderCall();
 
 			SwapBuffers();
-			
 			//Error Catch
-			#if (DEBUG)
-				ErrorCode b = GL.GetError();
-				if (!b.ToString().Equals("NoError"))
-				{
-					throw new Exception(b.ToString());
-				}
-			#endif
+			StaticHolder.CheckGLError();
 		}
 		#endregion Overrides
 	}

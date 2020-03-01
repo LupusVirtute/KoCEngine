@@ -68,15 +68,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GameEngine\Draw\RenderManager.cs" />
+    <Compile Include="GameEngine\Draw\Mesh.cs" />
+    <Compile Include="GameEngine\Draw\Obj3D.cs" />
+    <Compile Include="GameEngine\Draw\Renderer\IRenderer.cs" />
+    <Compile Include="GameEngine\Draw\Renderer\RenderManager.cs" />
+    <Compile Include="GameEngine\Draw\Textures\ITextureHandler.cs" />
+    <Compile Include="GameEngine\Draw\Textures\TextureHandler.cs" />
+    <Compile Include="GameEngine\Draw\Text\Character.cs" />
+    <Compile Include="GameEngine\Draw\Text\EngineText.cs" />
+    <Compile Include="GameEngine\Draw\Text\KoCFont.cs" />
+    <Compile Include="GameEngine\Files\Comparators\IPrefixParser.cs" />
+    <Compile Include="GameEngine\Files\Comparators\VectorTypeConverter.cs" />
+    <Compile Include="GameEngine\Files\Comparators\VerticePrefixParser.cs" />
     <Compile Include="GameEngine\Files\FileCompiler.cs" />
     <Compile Include="GameEngine\InputHandler.cs" />
-    <Compile Include="GameEngine\Draw\Draw.cs" />
+    <Compile Include="GameEngine\Draw\Textures\Texture2D.cs" />
     <Compile Include="GameEngine\Files\FileParser.cs" />
     <Compile Include="GameEngine\Game.cs" />
     <Compile Include="GameEngine\Maths.cs" />
     <Compile Include="GameEngine\Player\Camera.cs" />
     <Compile Include="GameEngine\Player\ICamera.cs" />
+    <Compile Include="GameEngine\StaticHolder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -94,6 +106,12 @@
     </Content>
     <Content Include="Shaders\verShader.vert">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Shaders\TxtFragShader.frag">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Shaders\TxtVerShader.vert">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
