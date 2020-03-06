@@ -1,5 +1,6 @@
 ﻿using KoC.GameEngine.Draw;
 using KoC.GameEngine.Draw.Renderer;
+using KoC.GameEngine.Draw.Text;
 using OpenTK.Graphics.OpenGL4;
 using System;
 namespace KoC.GameEngine
@@ -8,6 +9,7 @@ namespace KoC.GameEngine
     {
         public static RenderManager mainRender;
         public static TextureHandler textureHandler;
+		public static TextHandler textHandler;
 		public static bool FreezeRender = false;
         public static void CheckGLError()
         {

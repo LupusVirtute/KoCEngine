@@ -9,28 +9,27 @@ namespace KoC.GameEngine.Draw.Text
 		string text;
 		Matrix4[] matrixArray;
 		int program;
-		float[] origin;
-		public EngineText2D(KoCFont font,string text,int program,float[] origin)
+		Vector2 origin;
+		public EngineText2D(KoCFont font,string text,int program,Vector2 origin)
 		{
-			if(origin.Length != 2) throw new System.ArgumentException("Invalid length of origin", "origin");
 
 			this.origin = origin;
 			this.font = font;
 			this.text = text;
 			this.program = program;
-			matrixArray	= font.CalculateMatrices(text,origin[0],origin[1]);
+			matrixArray	= font.CalculateMatrices(text, origin.X, origin.Y);
 		}
 		public void ChangeText(string text)
 		{
 			this.text = text;
-			matrixArray = font.CalculateMatrices(text, origin[0], origin[1]);
+			matrixArray = font.CalculateMatrices(text, origin.X, origin.Y);
 			
 		}
-		public void ChangePos(float[] newOrigin)
+		public void ChangePos(Vector2 newOrigin)
 		{
 			if (newOrigin.Length != 2) throw new System.ArgumentException("Invalid length of origin","newOrigin");
 			origin = newOrigin;
-			matrixArray = font.CalculateMatrices(text, origin[0], origin[1]);
+			matrixArray = font.CalculateMatrices(text, origin.X, origin.Y);
 		}
 		public void Render()
 		{

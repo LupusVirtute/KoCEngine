@@ -2,26 +2,19 @@
 {
     public struct Shader
     {
-        int programID;
-        string name;
-        public string Name
-        {
-            get
-            {
-                return name;
-            }
-        }
-        ShaderCompile[] compileShader;
+        public int ProgramID { get; private set; }
+		public string Name { get; private set; }
+		ShaderCompile[] compileShader;
         public Shader(ShaderCompile[] shader, string name)
         {
-            this.name = name;
+            this.Name = name;
             compileShader = shader;
             int[] shaderID = new int[shader.Length];
             for (int i = 0; i < shader.Length; i++)
             {
                 shaderID[i] = Files.FileCompiler.CompileShader(shader[i].shaderType,shader[i].filePath);
             }
-            programID = Files.FileCompiler.CreateProgram(shaderID);
+            ProgramID = Files.FileCompiler.CreateProgram(shaderID);
         }
         /// <summary>
         /// Reloads Shader
@@ -35,7 +28,7 @@
             {
                 shaderID[i] = Files.FileCompiler.CompileShader(compileShader[i].shaderType, compileShader[i].filePath);
             }
-            programID = Files.FileCompiler.CreateProgram(shaderID);
+            ProgramID = Files.FileCompiler.CreateProgram(shaderID);
 
         }
     }

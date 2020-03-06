@@ -4,58 +4,51 @@ namespace KoC.GameEngine.ShaderManager
 {
     public class ShaderManager : IShaderManager
     {
-        private List<Shader> shaderPrograms;
+		public List<Shader> ShaderPrograms { get; private set; }
         Dictionary<string, int> shaderDic;
         public ShaderManager(Shader[] programs)
         {
-            shaderPrograms = new List<Shader>(programs);
+            ShaderPrograms = new List<Shader>(programs);
             shaderDic = new Dictionary<string, int>();
             ReloadDictionary();
         }
         private void ReloadDictionary()
         {
             shaderDic.Clear();
-            for (int i = 0; i < shaderPrograms.Count; i++)
+            for (int i = 0; i < ShaderPrograms.Count; i++)
             {
-                shaderDic.Add(shaderPrograms[i].Name, i);
+                shaderDic.Add(ShaderPrograms[i].Name, i);
             }
         }
 
-        public List<Shader> ShaderPrograms
+		public Shader this[int id]
         {
             get
             {
-                return shaderPrograms;
-            }
-        }
-        public Shader this[int id]
-        {
-            get
-            {
-                return shaderPrograms[id];
+                return ShaderPrograms[id];
             }
         }
         public Shader this[string id]
         {
             get
             {
-                return shaderPrograms[shaderDic[id]];
+                return ShaderPrograms[shaderDic[id]];
             }
         }
         public void AddShaderProgram(Shader shader,string name)
         {
-            shaderPrograms.Add(shader);
+            ShaderPrograms.Add(shader);
             ReloadDictionary();
         }
 
         public void ReloadShaderProgram(int id)
         {
-            shaderPrograms[id].ReloadShader();
+            ShaderPrograms[id].ReloadShader();
         }
 
         public void RemoveShaderProgram(int id)
         {
-            shaderPrograms.RemoveAt(id);
+            ShaderPrograms.RemoveAt(id);
             ReloadDictionary();
         }
     }

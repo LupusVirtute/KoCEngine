@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using OpenTK.Graphics.OpenGL4;
 namespace KoC.GameEngine.Draw.Text
 {

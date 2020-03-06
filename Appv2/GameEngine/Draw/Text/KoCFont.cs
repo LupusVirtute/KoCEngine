@@ -42,6 +42,7 @@ namespace KoC.GameEngine.Draw.Text
 			Image bmp = new Bitmap(1, 1);
 
 			Graphics g = Graphics.FromImage(bmp);
+
 			scaler = 1.0f;
 			origin = new Vector3();
 			this.font = font;

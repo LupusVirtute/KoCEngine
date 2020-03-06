@@ -1,6 +1,7 @@
 ﻿using KoC.GameEngine.Draw.Text;
 using KoC.GameEngine.Files;
 using KoC.GameEngine.Player;
+using KoC.GameEngine.ShaderManager;
 using OpenTK;
 using OpenTK.Graphics.OpenGL4;
 using System;
@@ -62,8 +63,12 @@ namespace KoC.GameEngine.Draw.Renderer
 		private readonly int gSampLoc;
 		public RenderManager()
 		{
+			ShaderCompile shc = new ShaderCompile("Shaders/TxtFragShader.frag",ShaderType.FragmentShader);
+			ShaderCompile shc2 = new ShaderCompile("Shaders/TxtVerShader.vert",ShaderType.VertexShader);
+			Shader sh = new Shader(new ShaderCompile[2] { shc,shc2},"TxtShader");
+
 			KoCFont font = new KoCFont(new System.Drawing.Font("Consolas", 6f));
-			text = new EngineText2D(font,"YES FINALLY I CAN JERK OFF TO THIS",_TxTProgram,new float[2] { 32f,32f });
+			text = new EngineText2D(font,"YES FINALLY I CAN JERK OFF TO THIS",_TxTProgram,new Vector2(32f,32f));
 			
 			FOV = 90.0f;
 			renderDistance = 100.0f;
@@ -96,7 +101,7 @@ namespace KoC.GameEngine.Draw.Renderer
 			_TxTProgram = FileCompiler.CreateProgram(shaders);
 			StaticHolder.CheckGLError();
 
-			text = new EngineText2D(new KoCFont(new System.Drawing.Font("Consolas", 6f)), "YES FINALLY I CAN JERK OFF TO THIS", _TxTProgram, new float[2] { 32f, 32f });
+			text = new EngineText2D(new KoCFont(new System.Drawing.Font("Consolas", 6f)), "YES FINALLY I CAN JERK OFF TO THIS", _TxTProgram, new Vector2(32f,32f));
 			ReloadProjections(MainC.game.Width / MainC.game.Height);
 		}
 		public void SetProgram(int program)
