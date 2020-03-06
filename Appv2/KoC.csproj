@@ -75,7 +75,7 @@
     <Compile Include="GameEngine\Draw\Textures\ITextureHandler.cs" />
     <Compile Include="GameEngine\Draw\Textures\TextureHandler.cs" />
     <Compile Include="GameEngine\Draw\Text\Character.cs" />
-    <Compile Include="GameEngine\Draw\Text\EngineText.cs" />
+    <Compile Include="GameEngine\Draw\Text\EngineText2D.cs" />
     <Compile Include="GameEngine\Draw\Text\KoCFont.cs" />
     <Compile Include="GameEngine\Files\Comparators\IPrefixParser.cs" />
     <Compile Include="GameEngine\Files\Comparators\VectorTypeConverter.cs" />
@@ -88,6 +88,10 @@
     <Compile Include="GameEngine\Maths.cs" />
     <Compile Include="GameEngine\Player\Camera.cs" />
     <Compile Include="GameEngine\Player\ICamera.cs" />
+    <Compile Include="GameEngine\ShaderManager\IShaderManager.cs" />
+    <Compile Include="GameEngine\ShaderManager\Shader.cs" />
+    <Compile Include="GameEngine\ShaderManager\ShaderCompile.cs" />
+    <Compile Include="GameEngine\ShaderManager\ShaderManager.cs" />
     <Compile Include="GameEngine\StaticHolder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

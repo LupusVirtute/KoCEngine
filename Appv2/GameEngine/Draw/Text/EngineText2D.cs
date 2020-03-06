@@ -3,14 +3,14 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace KoC.GameEngine.Draw.Text
 {
-	public class EngineText
+	public class EngineText2D
 	{
 		KoCFont font;
 		string text;
 		Matrix4[] matrixArray;
 		int program;
 		float[] origin;
-		public EngineText(KoCFont font,string text,int program,float[] origin)
+		public EngineText2D(KoCFont font,string text,int program,float[] origin)
 		{
 			if(origin.Length != 2) throw new System.ArgumentException("Invalid length of origin", "origin");
 
@@ -29,7 +29,7 @@ namespace KoC.GameEngine.Draw.Text
 		public void ChangePos(float[] newOrigin)
 		{
 			if (newOrigin.Length != 2) throw new System.ArgumentException("Invalid length of origin","newOrigin");
-			this.origin = newOrigin;
+			origin = newOrigin;
 			matrixArray = font.CalculateMatrices(text, origin[0], origin[1]);
 		}
 		public void Render()

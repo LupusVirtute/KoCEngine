@@ -8,6 +8,7 @@ namespace KoC.GameEngine
     {
         public static RenderManager mainRender;
         public static TextureHandler textureHandler;
+		public static bool FreezeRender = false;
         public static void CheckGLError()
         {
 			#if (DEBUG)
@@ -20,6 +21,15 @@ namespace KoC.GameEngine
 				ErrorCode b = GL.GetError();
 				
 			#endif
+		}
+		public static float GetRatio(float Width,float Height)
+		{
+			float asp;
+			if (Width == 0) asp = Height;
+			else if (Height == 0) asp = Width;
+			else if (Width > Height) asp = Width / Height;
+			else asp = Height / Width;
+			return asp;
 		}
 	}
 }

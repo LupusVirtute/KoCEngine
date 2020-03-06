@@ -4,13 +4,9 @@ using OpenTK;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime;
-using System.Text;
-using static KoC.GameEngine.Files.Comparators.FacePrefixParser;
 
 namespace KoC.GameEngine.Files
 {

@@ -115,10 +115,7 @@ namespace KoC.GameEngine
 		{
 			float asp;
 			GL.Viewport(this.ClientRectangle);
-			if (Width == 0) asp = Height;
-			else if (Height == 0) asp = Width;
-			else if (Width > Height) asp = Width / Height;
-			else asp = Height / Width;
+			asp = StaticHolder.GetRatio(Width,Height);
 			StaticHolder.mainRender.ReloadProjections(asp);
 			base.OnResize(e);
 		}
@@ -129,16 +126,19 @@ namespace KoC.GameEngine
 		}
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
-			if(powerLimiter) Thread.Sleep(15);
-			Color4 backColor = new Color4(0, 0, 80, 255);
-			GL.ClearColor(backColor);
-			GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+			if (!StaticHolder.FreezeRender)
+			{
+				if (powerLimiter) Thread.Sleep(15);
+				Color4 backColor = new Color4(0, 0, 80, 255);
+				GL.ClearColor(backColor);
+				GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-			Title = $"(Vsync : {VSync}) (FPS : {1f / e.Time:0})";
+				Title = $"(Vsync : {VSync}) (FPS : {1f / e.Time:0})";
 
-			StaticHolder.mainRender.RenderCall();
+				StaticHolder.mainRender.RenderCall();
 
-			SwapBuffers();
+				SwapBuffers();
+			}
 			//Error Catch
 			StaticHolder.CheckGLError();
 		}

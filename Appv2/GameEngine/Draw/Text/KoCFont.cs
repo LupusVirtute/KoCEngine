@@ -110,7 +110,6 @@ namespace KoC.GameEngine.Draw.Text
 		public int GetCharIndex(char c)
 		{
 			if (c == '\0') c = '\n';
-			else if (c == '\u0001') c = '1';
 			else if (!IsCharValid(c))
 			{
 				throw new ArgumentException("Invalid Character", "c");

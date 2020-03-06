@@ -12,7 +12,7 @@ namespace KoC.GameEngine.Draw.Renderer
 	{
 		private List<Obj3D> Objects = new List<Obj3D>();
 		private float _FOV;
-		private EngineText text;
+		private EngineText2D text;
 		public float FOV
 		{
 			get
@@ -36,7 +36,7 @@ namespace KoC.GameEngine.Draw.Renderer
 			}
 			set
 			{
-				if (renderDistance <= 0.1f)
+				if (value <= 0.1f)
 				{
 					throw new ArgumentException("Invalid value for render distance");
 				}
@@ -62,12 +62,10 @@ namespace KoC.GameEngine.Draw.Renderer
 		private readonly int gSampLoc;
 		public RenderManager()
 		{
-			/*int[] shaders = new int[2];
-			shaders[0] = FileCompiler.CompileShader(ShaderType.VertexShader, @"Shaders\TxtVerShader.vert");
-			shaders[1] = FileCompiler.CompileShader(ShaderType.FragmentShader, @"Shaders\TxtFragShader.frag");
-			_TxTProgram = FileCompiler.CreateProgram(shaders);
-			text = new EngineText(new KoCFont(new System.Drawing.Font("Consolas",6f)),"YES FINALLY I CAN JERK OFF TO THIS",_TxTProgram,new float[2] { 32f,32f });
-			*/FOV = 90.0f;
+			KoCFont font = new KoCFont(new System.Drawing.Font("Consolas", 6f));
+			text = new EngineText2D(font,"YES FINALLY I CAN JERK OFF TO THIS",_TxTProgram,new float[2] { 32f,32f });
+			
+			FOV = 90.0f;
 			renderDistance = 100.0f;
 			_program = 0;
 			ReloadProjections(MainC.game.Width / MainC.game.Height);
@@ -98,7 +96,7 @@ namespace KoC.GameEngine.Draw.Renderer
 			_TxTProgram = FileCompiler.CreateProgram(shaders);
 			StaticHolder.CheckGLError();
 
-			text = new EngineText(new KoCFont(new System.Drawing.Font("Consolas", 6f)), "YES FINALLY I CAN JERK OFF TO THIS", _TxTProgram, new float[2] { 32f, 32f });
+			text = new EngineText2D(new KoCFont(new System.Drawing.Font("Consolas", 6f)), "YES FINALLY I CAN JERK OFF TO THIS", _TxTProgram, new float[2] { 32f, 32f });
 			ReloadProjections(MainC.game.Width / MainC.game.Height);
 		}
 		public void SetProgram(int program)

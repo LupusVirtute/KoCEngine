@@ -55,24 +55,6 @@ namespace KoC.GameEngine.Player
 		{
 			return ref CameraMatrix;
 		}
-		/*private Matrix4 InitCameraTransf()
-		{
-			Vector3 N = _Target;
-			N.Normalize();
-			Vector3 U = _Up;
-			U = Vector3.Cross(U, _Target);
-			U.Normalize();
-			Vector3 V = Vector3.Cross(N,U);
-			return new Matrix4(
-				U.X, U.Y, U.Z, 0.0f,
-				V.X, V.Y, V.Z, 0.0f,
-				N.X, N.Y, N.Z, 0.0f,
-				0.0f,0.0f,0.0f,1.0f
-				);
-
-		}
-		*/
-
 		
 		public bool IsPointInCameraView(Vector3 point)
 		{
