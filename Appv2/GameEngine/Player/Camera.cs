@@ -1,11 +1,13 @@
 ﻿using OpenTK;
+using System;
 
 namespace KoC.GameEngine.Player
 {
-	class Camera : ICamera
+	public class Camera : ICamera
 	{
 		private Vector3 _Target;
 		private Vector3 _CamPos;
+		private Vector3 _Front;
 		private Vector3 _Up;
 		public Matrix4 CameraMatrix;
 		public Vector3 Target {
@@ -44,18 +46,64 @@ namespace KoC.GameEngine.Player
 		{
 			_Target = tTarget;
 			_Up = Up;
+			_Up = new Vector3(0.0f,1.0f,0.0f);
+			_Front = new Vector3(0f,0f,-1.0f);
 			_CamPos = CamPos;
-			CameraMatrix = Matrix4.LookAt(_Target, _Up, _CamPos) * Matrix4.CreateTranslation(-_CamPos);
+			CameraMatrix = Matrix4.LookAt(_CamPos, _CamPos + _Front,_Up ) * Matrix4.CreateTranslation(-_CamPos);
+			CalculateCamMatrix();
 		}
 		private void CalculateCamMatrix()
 		{
-			CameraMatrix = Matrix4.LookAt(_Target, _Up, _CamPos) * Matrix4.CreateTranslation(-_CamPos);
+			CameraMatrix = Matrix4.LookAt(_CamPos, _CamPos + _Front, _Up) * Matrix4.CreateTranslation(-_CamPos);
 		}
-		public ref Matrix4 GetCameraMatrix()
+		public Matrix4 GetCameraMatrix
 		{
-			return ref CameraMatrix;
+			get
+			{
+				return CameraMatrix;
+			}
 		}
-		
+		public void CameraMove(Vector3 vec,float speed)
+		{
+			if(vec.X < 0) 
+			{
+				_CamPos -= Vector3.Normalize(Vector3.Cross(_Front,_Up)) *speed;
+			}
+			else if(vec.X > 0)
+			{
+				_CamPos += Vector3.Normalize(Vector3.Cross(_Front, _Up)) * speed;
+
+			}
+			if (vec.Y < 0)
+			{
+				_CamPos += _Up * speed;
+			}
+			else if (vec.Y > 0)
+			{
+				_CamPos -= _Up * speed;
+			}
+			if(vec.Z < 0)
+			{
+				_CamPos += _Front*speed;
+			}
+			else if(vec.Z > 0) 
+			{
+				_CamPos -= _Front*speed;
+
+			}			
+			//CameraRotate(new Vector3(0.0f,0.0f,0.0f));
+
+			CalculateCamMatrix();
+		}
+		public void CameraRotate(Vector3 Angles)
+		{
+			float camY = (float)Math.Sin(QuickMaths.DegreeToRadian(Angles.Y));
+			float cosPitch = (float)Math.Cos(QuickMaths.DegreeToRadian(Angles.Y));
+			Angles.X = (float)Math.Sin(QuickMaths.DegreeToRadian(Angles.X)) * cosPitch;
+			Angles.Z = (float)Math.Cos(QuickMaths.DegreeToRadian(Angles.Z)) * cosPitch;
+			_Target = new Vector3(Angles.X, camY, Angles.Z);
+			CalculateCamMatrix();
+		}
 		public bool IsPointInCameraView(Vector3 point)
 		{
 

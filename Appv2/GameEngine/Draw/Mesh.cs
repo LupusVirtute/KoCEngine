@@ -18,8 +18,6 @@ namespace KoC.GameEngine.Draw
 		private readonly int _verticeCount;
 		private int Fl;
 		private readonly uint[] indicesArray;
-		private readonly uint[] TexturePoints;
-		private readonly uint[] NormalPoints;
 		private Vector2[] TexVec;
 		private Vector3[] Normals;
 		Vector3[] VerMatrix;
@@ -35,12 +33,19 @@ namespace KoC.GameEngine.Draw
 		/// <param name="tN">Texture Normals</param>
 		public Mesh(Vector3[] x,Vector3[] n,Vector2[] tVec,uint[] indices,uint[] tP,uint[] tN)
 		{
-			Normals = n;
-			TexVec = tVec;
 			VerMatrix = x;
+			TexVec = new Vector2[tP.Length];
+			for(int i = 0; i < tP.Length; i++)
+			{
+				TexVec[i] = tVec[tP[i]];
 
-			TexturePoints = tP;
-			NormalPoints = tN;
+			}
+			Normals = new Vector3[tN.Length];
+			for(int i = 0; i < tN.Length; i++)
+			{
+				Normals[i] = n[tN[i]];
+			}
+			
 
 
 

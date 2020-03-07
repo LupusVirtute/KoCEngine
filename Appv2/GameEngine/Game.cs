@@ -32,6 +32,8 @@ namespace KoC.GameEngine
 			Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
 			powerLimiter = true;
 			StaticHolder.textureHandler = new TextureHandler();
+			KeyDown += InputHandler.onKeyDown;
+			KeyUp += InputHandler.onKeyUp;
 		}
 		/// <summary>
 		/// Switches Power Saving Mode if on can cause stutter.<br/>
@@ -121,7 +123,6 @@ namespace KoC.GameEngine
 		}
 		protected override void OnUpdateFrame(FrameEventArgs e)
 		{
-			InputHandler.HandleKeyboard();
 			base.OnUpdateFrame(e);
 		}
 		protected override void OnRenderFrame(FrameEventArgs e)

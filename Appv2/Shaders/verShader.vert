@@ -11,6 +11,6 @@ layout (location = 22) uniform  mat4 modelView;
 
 void main(void)
 {
-    gl_Position = projection*camera* modelView * vec4(position,1.0f);
+    gl_Position = projection * camera * modelView * vec4(position,1.0f);
     TexCoord0 = TexCoord;
 }

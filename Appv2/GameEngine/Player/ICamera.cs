@@ -7,7 +7,9 @@ namespace KoC.GameEngine.Player
 		Vector3 Target { get; set; }
 		Vector3 CamPos { get; set; }
 		Vector3 Up { get; set; }
-		ref Matrix4 GetCameraMatrix();
+		void CameraMove(Vector3 vec,float speed);
+		void CameraRotate(Vector3 angles);
+		Matrix4 GetCameraMatrix { get; }
 
 	}
 }

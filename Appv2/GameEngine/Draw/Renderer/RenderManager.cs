@@ -50,7 +50,17 @@ namespace KoC.GameEngine.Draw.Renderer
 			{
 				return camera;
 			}
+			set
+			{
+				if(value == null)
+				{
+					throw new ArgumentNullException();
+				}
+				camera = value;
+			}
 		}
+
+
 		private float renderDistance;
 		private ICamera camera;
 		private Matrix4 projection;
@@ -61,6 +71,7 @@ namespace KoC.GameEngine.Draw.Renderer
 		private readonly int loc = 20;
 		private readonly int camLoc = 21;
 		private readonly int gSampLoc;
+		public Camera camx;
 		public RenderManager()
 		{
 			ShaderCompile shc = new ShaderCompile("Shaders/TxtFragShader.frag",ShaderType.FragmentShader);
@@ -80,6 +91,7 @@ namespace KoC.GameEngine.Draw.Renderer
 			this.Objects = Objects;
 			this.camera = camera;
 			_program = program;
+			camx = (Camera)camera;
 			renderDistance = 100.0f;
 			FOV = 90.0f;
 			if (GL.GetInteger(GetPName.MajorVersion) < 4 && GL.GetInteger(GetPName.MinorVersion) < 3)
@@ -130,6 +142,7 @@ namespace KoC.GameEngine.Draw.Renderer
 		}
 		public void RenderCall()
 		{
+
 			//Switch ortho or perspectiveFOV
 
 			if (GL.IsProgram(_program)) GL.UseProgram(_program);
@@ -142,7 +155,8 @@ namespace KoC.GameEngine.Draw.Renderer
 				GL.UniformMatrix4(loc, false, ref projection);
 			}
 
-			GL.UniformMatrix4(camLoc, false, ref camera.GetCameraMatrix());
+			Matrix4 CamMatrix = camera.GetCameraMatrix;
+			GL.UniformMatrix4(21, false,ref CamMatrix);
 			for (int i = 0; i < Objects.Count; i++)
 			{
 				Objects[i].RenderObj(gSampLoc);
