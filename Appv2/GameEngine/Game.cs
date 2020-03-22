@@ -72,7 +72,7 @@ namespace KoC.GameEngine
 			GL.DepthFunc(DepthFunction.Less);
 
 			Closed += OnClosed;
-			m = FileParser.ParseFile("iron_anvil.obj");
+			m = FileParser.ParseMeshFile("iron_anvil.obj");
 			//m = FileParser.ParseFile("C:/Users/Marcin/Desktop/cube.obj");
 			//m[0].Move(1.0f,2.0f,0.0f);
 			GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
@@ -92,9 +92,8 @@ namespace KoC.GameEngine
 
 			Vector3 CameraPos		= new Vector3(1.0f, 1.0f, -10.0f);
 			Vector3 CameraTarget	= new Vector3(0.45f, 0.0f, 1.0f);
-			Vector3 CameraUp		= new Vector3(0.0f, 1.0f, 0.0f);
 
-			StaticHolder.mainRender = new RenderManager(d3objli, new Player.Camera(CameraPos, CameraTarget, CameraUp),_program);
+			StaticHolder.mainRender = new RenderManager(d3objli, new Player.Camera(CameraTarget,CameraPos),_program);
 			StaticHolder.mainRender.ReloadProjections(Width,Height);
 
 			base.OnLoad(e);

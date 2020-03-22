@@ -1,5 +1,7 @@
 ﻿using KoC.GameEngine.Draw;
 using KoC.GameEngine.Files.Comparators;
+using KoC.GameEngine.Files.GameFilesParsers;
+using KoC.GameEngine.ShaderManager;
 using OpenTK;
 using System;
 using System.Collections.Generic;
@@ -12,6 +14,38 @@ namespace KoC.GameEngine.Files
 {
 	public class FileParser
 	{
+		public void ParseFile(GameFile file)
+		{
+			IFileParser[] parsers =
+			{
+				new MeshFileParser()
+			};
+			IFileParser result = parsers.FirstOrDefault(o => o.IsMatch(file.FileType));
+			switch (file.FileType)
+			{
+				case GameFileType.Mesh:
+					result.Parse<Mesh>();
+					break;
+				case GameFileType.Shader:
+					result.Parse<ShaderCompile>();
+					break;
+				case GameFileType.Texture2D:
+					result.Parse<Texture2D>();
+					break;
+				case GameFileType.SceneInfo:
+					break;
+				case GameFileType.PlayerInfo:
+					break;
+				case GameFileType.Save:
+					break;
+				case GameFileType.ObjectInfo:
+					break;
+				default:
+					break;
+			}
+
+
+		}
 		/// <summary>
 		/// Loads Image or texture in BitmapData
 		/// </summary>
@@ -27,7 +61,7 @@ namespace KoC.GameEngine.Files
 		/// </summary>
 		/// <param name="filePath"></param>
 		/// <returns></returns>
-		public static Mesh[] ParseFile(string filePath)
+		public static Mesh[] ParseMeshFile(string filePath)
 		{
 			try
 			{
@@ -104,9 +138,6 @@ namespace KoC.GameEngine.Files
 				return newIndiceArray;
 			}
 		}
-		#region quickPrefixes
-		const char commentObj = '#';
-		#endregion quickPrefixes
 		public static Mesh[] ParseObjFile(string filePath)
 		{
 			FacePrefixParser fPrefixParser = new FacePrefixParser();
@@ -132,7 +163,7 @@ namespace KoC.GameEngine.Files
 			{
 				while ((DataString = str.ReadLine()) != null)
 				{
-					if (DataString[0] == commentObj)
+					if (DataString[0] == ObjFileStrings.comment)
 					{
 						continue;
 					}
@@ -143,9 +174,9 @@ namespace KoC.GameEngine.Files
 					List<uint> verListPoint = new List<uint>();
 					List<uint> textureCoordsPoint = new List<uint>();
 					List<uint> normalPoint = new List<uint>();
-					if (DataString[0] == 'o' || !string.IsNullOrEmpty(nextObj))
+					if (DataString[0] == ObjFileStrings.obj || !string.IsNullOrEmpty(nextObj))
 					{
-						name = DataString[0] == 'o' ? DataString.Replace("o ", "") : nextObj;
+						name = DataString[0] == ObjFileStrings.obj ? DataString.Replace(ObjFileStrings.obj+" ", "") : nextObj;
 						while (true)
 						{
 							DataString = str.ReadLine();
@@ -174,7 +205,7 @@ namespace KoC.GameEngine.Files
 							string[] modArr = DataString.Split(' ');
 							DataString = string.Empty;
 							//Checks if is there any need for checking values
-							if (modArr[0].Length >= 1 && !modArr[0].Contains($"{commentObj}"))
+							if (modArr[0].Length >= 1 && !modArr[0].Contains($"{ObjFileStrings.comment}"))
 							{
 								var parser = prefixParsers.FirstOrDefault(p => p.IsMatch(modArr));
 								//To just stop this loop running we can break it legs :)

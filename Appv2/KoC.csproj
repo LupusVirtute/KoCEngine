@@ -68,6 +68,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameEngine\Files\Comparators\ObjFileStrings.cs" />
+    <Compile Include="GameEngine\Files\GameFile.cs" />
+    <Compile Include="GameEngine\Files\GameFilesParsers\IFileParser.cs" />
+    <Compile Include="GameEngine\Files\GameFilesParsers\MeshFileParser.cs" />
+    <Compile Include="GameEngine\Files\GameFileType.cs" />
+    <Compile Include="GameEngine\Loader\GameLoader.cs" />
     <Compile Include="GameEngine\Draw\Mesh.cs" />
     <Compile Include="GameEngine\Draw\Obj3D.cs" />
     <Compile Include="GameEngine\Draw\Renderer\IRenderer.cs" />

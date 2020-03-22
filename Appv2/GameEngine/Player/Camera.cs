@@ -9,7 +9,16 @@ namespace KoC.GameEngine.Player
 		private Vector3 _CamPos;
 		private Vector3 _Front;
 		private Vector3 _Up;
-		public Matrix4 CameraMatrix;
+		private float angleH;
+		private float angleV;
+		private Matrix4 CameraMatrix;
+		public Matrix4 GetCameraMatrix
+		{
+			get
+			{
+				return CameraMatrix;
+			}
+		}
 		public Vector3 Target {
 			get {
 				return _Target;
@@ -42,26 +51,22 @@ namespace KoC.GameEngine.Player
 
 		}
 
-		public Camera(Vector3 tTarget,Vector3 Up,Vector3 CamPos)
+		public Camera(Vector3 tTarget,Vector3 CamPos)
 		{
 			_Target = tTarget;
+			_Target.Normalize();
 			_Up = Up;
 			_Up = new Vector3(0.0f,1.0f,0.0f);
+			_Up.Normalize();
 			_Front = new Vector3(0f,0f,-1.0f);
+			_Front.Normalize();
 			_CamPos = CamPos;
-			CameraMatrix = Matrix4.LookAt(_CamPos, _CamPos + _Front,_Up ) * Matrix4.CreateTranslation(-_CamPos);
+			CameraRotate(new Vector3(1.0f,1.0f,1.0f));
 			CalculateCamMatrix();
 		}
 		private void CalculateCamMatrix()
 		{
-			CameraMatrix = Matrix4.LookAt(_CamPos, _CamPos + _Front, _Up) * Matrix4.CreateTranslation(-_CamPos);
-		}
-		public Matrix4 GetCameraMatrix
-		{
-			get
-			{
-				return CameraMatrix;
-			}
+			CameraMatrix =Matrix4.LookAt(_CamPos,_Target, _Up) * Matrix4.CreateTranslation(-_CamPos);
 		}
 		public void CameraMove(Vector3 vec,float speed)
 		{
@@ -90,19 +95,27 @@ namespace KoC.GameEngine.Player
 			{
 				_CamPos -= _Front*speed;
 
-			}			
-			//CameraRotate(new Vector3(0.0f,0.0f,0.0f));
-
+			}
+			CameraRotate(new Vector3(1.0f, 90.0f, 1.0f));
 			CalculateCamMatrix();
+
 		}
+		public Vector3 rot = new Vector3();
 		public void CameraRotate(Vector3 Angles)
 		{
-			float camY = (float)Math.Sin(QuickMaths.DegreeToRadian(Angles.Y));
-			float cosPitch = (float)Math.Cos(QuickMaths.DegreeToRadian(Angles.Y));
-			Angles.X = (float)Math.Sin(QuickMaths.DegreeToRadian(Angles.X)) * cosPitch;
-			Angles.Z = (float)Math.Cos(QuickMaths.DegreeToRadian(Angles.Z)) * cosPitch;
-			_Target = new Vector3(Angles.X, camY, Angles.Z);
+			Angles.X %= 360;
+			Angles.Y %= 360;
+			Angles.Z %= 360;
+			Angles.X = QuickMaths.DegreeToRadian(Angles.X);
+			Angles.Y = QuickMaths.DegreeToRadian(Angles.Y);
+			Angles.Z = QuickMaths.DegreeToRadian(Angles.Z);
+			rot = Angles;
+			Quaternion quaternion = new Quaternion(rot.X,rot.Y,rot.Z);
+			UpdateTarget(quaternion);
 			CalculateCamMatrix();
+		}
+		private void UpdateTarget(Quaternion quat)
+		{
 		}
 		public bool IsPointInCameraView(Vector3 point)
 		{
