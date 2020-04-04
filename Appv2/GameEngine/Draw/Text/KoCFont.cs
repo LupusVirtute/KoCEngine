@@ -21,7 +21,7 @@ namespace KoC.GameEngine.Draw.Text
 		{
 			get
 			{
-				if(c == '\0')
+				if (c == '\0')
 				{
 					return characters[0];
 				}
@@ -79,7 +79,7 @@ namespace KoC.GameEngine.Draw.Text
 			for (int i = 0; i < charsToDraw.Length; i++)
 			{
 				charList.Add(
-					new Character(charsToDraw[i], font,new float[4] { avgWidthNormalized*i, 1.0f,avgWidthNormalized*i+avgWidthNormalized,0.0f })
+					new Character(charsToDraw[i], font, new float[4] { avgWidthNormalized * i, 1.0f, avgWidthNormalized * i + avgWidthNormalized, 0.0f })
 				);
 			}
 			StaticHolder.CheckGLError();
@@ -90,23 +90,23 @@ namespace KoC.GameEngine.Draw.Text
 			this.characters = characters;
 			font = new Font(name, 32f);
 		}
-		public Matrix4[] CalculateMatrices(string text,float originX,float originY)
+		public Matrix4[] CalculateMatrices(string text, float originX, float originY)
 		{
-			List<Matrix4> matrix4s = new List<Matrix4>();
+			Matrix4[] matrix4s = new Matrix4[text.Length];
 			int newLines = 1;
 			for (int i = 0; i < text.Length; i++)
 			{
 				if (text[i] == '\n' || text[i] == '\r')
 				{
 					newLines++;
-					matrix4s.Add(SetPosition((float)i * scaler +originX, (float)newLines * scaler+originY));
+					matrix4s[i] = SetPosition((float)i * scaler + originX, (float)newLines * scaler + originY);
 				}
 				else
 				{
-					matrix4s.Add(SetPosition((float)i * scaler+originX,(float) newLines * scaler+originY));
+					matrix4s[i] = SetPosition((float)i * scaler + originX, (float)newLines * scaler + originY);
 				}
 			}
-			return matrix4s.ToArray();
+			return matrix4s;
 		}
 		public int GetCharIndex(char c)
 		{
@@ -145,7 +145,7 @@ namespace KoC.GameEngine.Draw.Text
 			Matrix4.CreateTranslation(origin);
 		}
 		public void Dispose()
-		{
+		{ 
 			StaticHolder.textureHandler[font.Name].Dispose();
 			for (int i = 0; i < characters.Length; i++)
 			{

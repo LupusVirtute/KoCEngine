@@ -41,11 +41,16 @@ namespace KoC.GameEngine.Draw.Text
 
 			GL.EnableVertexArrayAttrib(VAO, 0);
 			GL.VertexAttribPointer(0,2,VertexAttribPointerType.Float,false,0,charTable);
+			GL.DisableVertexArrayAttrib(VAO, 0);
 
 			GL.BindBuffer(BufferTarget.ArrayBuffer,VBOTexCoords);
 			GL.BufferData(BufferTarget.ArrayBuffer,sizeof(float)*textureCoords.Length,textureCoords,BufferUsageHint.StaticRead);
+
 			GL.EnableVertexArrayAttrib(VAO,1);
 			GL.VertexAttribPointer(1,2,VertexAttribPointerType.Float,false,0,textureCoords);
+
+
+			GL.DisableVertexArrayAttrib(VAO, 1);
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 			GL.BindVertexArray(0);
 		}
@@ -56,10 +61,12 @@ namespace KoC.GameEngine.Draw.Text
 			GL.BindBuffer(BufferTarget.ArrayBuffer,VBO);
 			GL.EnableVertexArrayAttrib(VAO, 0);
 			GL.EnableVertexArrayAttrib(VAO, 1);
-
+			
 			GL.DrawArrays(PrimitiveType.Triangles, 0,6);
 			
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+			GL.DisableVertexArrayAttrib(VAO, 0);
+			GL.DisableVertexArrayAttrib(VAO, 1);
 			GL.BindVertexArray(0);
 		}
 		public void Dispose()

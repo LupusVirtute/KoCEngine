@@ -2,6 +2,7 @@
 using KoC.GameEngine.Draw.Renderer;
 using KoC.GameEngine.Draw.Text;
 using KoC.GameEngine.Files;
+using KoC.GameEngine.Loader;
 using OpenTK.Graphics.OpenGL4;
 using System;
 namespace KoC.GameEngine
@@ -12,6 +13,9 @@ namespace KoC.GameEngine
         public static TextureHandler textureHandler;
 		public static TextHandler textHandler;
 		public static FileParser fileParser;
+		public static GameLoader loader;
+
+
 		public static bool FreezeRender = false;
         public static void CheckGLError()
         {

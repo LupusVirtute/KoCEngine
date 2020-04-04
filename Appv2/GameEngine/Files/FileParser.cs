@@ -14,7 +14,7 @@ namespace KoC.GameEngine.Files
 {
 	public class FileParser
 	{
-		public void ParseFile(GameFile file)
+		public void ParseFile(GameFile file,int readyIndex)
 		{
 			IFileParser[] parsers =
 			{
@@ -44,6 +44,7 @@ namespace KoC.GameEngine.Files
 					break;
 			}
 
+			StaticHolder.loader.fileReady[readyIndex] = true;
 
 		}
 		/// <summary>

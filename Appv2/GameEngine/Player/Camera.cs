@@ -66,7 +66,7 @@ namespace KoC.GameEngine.Player
 		}
 		private void CalculateCamMatrix()
 		{
-			CameraMatrix =Matrix4.LookAt(_CamPos,_Target, _Up) * Matrix4.CreateTranslation(-_CamPos);
+			CameraMatrix = Matrix4.LookAt(_CamPos,-_CamPos + _Front, _Up) * Matrix4.CreateTranslation(-_CamPos);
 		}
 		public void CameraMove(Vector3 vec,float speed)
 		{
@@ -96,7 +96,7 @@ namespace KoC.GameEngine.Player
 				_CamPos -= _Front*speed;
 
 			}
-			CameraRotate(new Vector3(1.0f, 90.0f, 1.0f));
+			CameraRotate(new Vector3(0.11f, .11f, .11f));
 			CalculateCamMatrix();
 
 		}
@@ -116,6 +116,7 @@ namespace KoC.GameEngine.Player
 		}
 		private void UpdateTarget(Quaternion quat)
 		{
+			_Target = new Vector3(quat.ToAxisAngle());
 		}
 		public bool IsPointInCameraView(Vector3 point)
 		{

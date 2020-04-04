@@ -113,7 +113,7 @@ namespace KoC.GameEngine.Draw.Renderer
 			_TxTProgram = FileCompiler.CreateProgram(shaders);
 			StaticHolder.CheckGLError();
 
-			text = new EngineText2D(new KoCFont(new System.Drawing.Font("Consolas", 6f)), "YES FINALLY I CAN JERK OFF TO THIS", _TxTProgram, new Vector2(32f,32f));
+			text = new EngineText2D(new KoCFont(new System.Drawing.Font("Consolas", 6f)), "YES FINALLY I CAN JERK OFF TO THIS", _TxTProgram, new Vector2(0f,0f));
 			ReloadProjections(MainC.game.Width / MainC.game.Height);
 		}
 		public void SetProgram(int program)
