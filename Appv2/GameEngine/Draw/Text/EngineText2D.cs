@@ -28,17 +28,17 @@ namespace KoC.GameEngine.Draw.Text
 		}
 		public void ChangePos(Vector2 newOrigin)
 		{
-			if (newOrigin.Length != 2) throw new System.ArgumentException("Invalid length of origin","newOrigin");
 			origin = newOrigin;
 			matrixArray = font.CalculateMatrices(text, origin.X, origin.Y);
 		}
 		public void Render()
 		{
+			font.BindTexture();
 			int loc = GL.GetUniformLocation(program,"charOffset");
 			for(int i = 0; i < matrixArray.Length; i++)
 			{
 				GL.UniformMatrix4(loc,false,ref matrixArray[i]);
-				font[System.Convert.ToChar(text[i])].RenderCharacter();
+				font[Convert.ToChar(text[i])].RenderCharacter();
 			}
 		}
 

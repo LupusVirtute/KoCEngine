@@ -146,7 +146,7 @@ namespace KoC.GameEngine.Draw.Renderer
 			//Switch ortho or perspectiveFOV
 
 			if (GL.IsProgram(_program)) GL.UseProgram(_program);
-			if (_bortho)
+			if (!_bortho)
 			{
 				GL.UniformMatrix4(loc, false, ref ortho);
 			}

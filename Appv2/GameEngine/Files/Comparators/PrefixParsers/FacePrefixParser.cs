@@ -17,7 +17,9 @@ namespace KoC.GameEngine.Files.Comparators
 
 		public T Parse<T>(string[] modArr)
 		{
-			if (typeof(T).Name != typeof(uint[][]).Name) throw new Exception("This Type is not handled here");
+			if (typeof(T).Name != typeof(uint[][]).Name) 
+				throw new Exception("This Type is not handled here");
+
 			uint[] verticePointerArray = new uint[modArr.Length - 1];
 			uint[] textureCoordsArray = new uint[modArr.Length - 1];
 			uint[] normalPointerArray = new uint[modArr.Length - 1];

@@ -163,13 +163,11 @@ namespace KoC.GameEngine.Files
 
 			using (StreamReader str = new StreamReader(filePath))
 			{
-				#region StreamReading
 				while ((DataString = str.ReadLine()) != null)
 				{
-					if (DataString[0] == ObjFileStrings.comment)
+					if (DataString[0] != ObjFileStrings.obj)
 						continue;
-					if (DataString[0] != ObjFileStrings.obj || string.IsNullOrEmpty(nextObj))
-						continue;
+
 
 					string name = string.Empty;
 					
@@ -216,9 +214,8 @@ namespace KoC.GameEngine.Files
 						DataString = string.Empty;
 						//Checks if is there any need for checking values
 						if (modArr[0].Length < 1 && modArr[0].Contains($"{ObjFileStrings.comment}"))
-						{
 							continue;
-						}
+
 						var parser = prefixParsers.FirstOrDefault(p => p.IsMatch(modArr));
 
 						switch (parser.prefixId)
@@ -273,7 +270,6 @@ namespace KoC.GameEngine.Files
 								));
 
 								fPrefixParser.lastIndx += verticesList.Count;
-
 								nextObj = modArr[1];
 
 								EncounteredNextObjectOrEOF = true;
@@ -291,7 +287,6 @@ namespace KoC.GameEngine.Files
 						}
 					}
 				}
-				#endregion
 			}
 
 			// TODO:

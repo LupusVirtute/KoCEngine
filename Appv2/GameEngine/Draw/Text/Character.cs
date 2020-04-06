@@ -14,22 +14,23 @@ namespace KoC.GameEngine.Draw.Text
 				return _c;
 			}
 		}
+		public float[] texCoords;
 
 		Font font;
 		public Character(char charToDraw,Font font,float[] textureCoords)
 		{
+			texCoords = textureCoords;
 			this.font = font;
 			_c = charToDraw;
 			//VAO and VBO's Init
 			float[] charTable = new float[12]
 			{
-				0.0f,0.0f,
-				0.0f,1.0f,
-				1.0f,0.0f,
-
-				1.0f,1.0f,
-				0.0f,1.0f,
-				1.0f,0.0f
+				-0.5f,  0.5f, // Top-left
+				 0.5f,  0.5f, // Top-right
+				 0.5f, -0.5f, // Bottom-right
+				 0.5f, -0.5f, // Bottom-right
+				-0.5f, -0.5f, // Bottom-left
+				-0.5f,  0.5f  // Top-left
 			};
 			VAO = GL.GenVertexArray();
 			VBO = GL.GenBuffer();
@@ -37,20 +38,32 @@ namespace KoC.GameEngine.Draw.Text
 
 			GL.BindVertexArray(VAO);
 			GL.BindBuffer(BufferTarget.ArrayBuffer,VBO);
-			GL.BufferData(BufferTarget.ArrayBuffer,48,charTable,BufferUsageHint.StaticRead);
+			GL.NamedBufferStorage(VBO,sizeof(float)*charTable.Length,charTable, BufferStorageFlags.MapWriteBit);
 
-			GL.EnableVertexArrayAttrib(VAO, 0);
-			GL.VertexAttribPointer(0,2,VertexAttribPointerType.Float,false,0,charTable);
-			GL.DisableVertexArrayAttrib(VAO, 0);
+
 
 			GL.BindBuffer(BufferTarget.ArrayBuffer,VBOTexCoords);
-			GL.BufferData(BufferTarget.ArrayBuffer,sizeof(float)*textureCoords.Length,textureCoords,BufferUsageHint.StaticRead);
-
-			GL.EnableVertexArrayAttrib(VAO,1);
-			GL.VertexAttribPointer(1,2,VertexAttribPointerType.Float,false,0,textureCoords);
+			GL.NamedBufferStorage(VBOTexCoords,sizeof(float)*textureCoords.Length,textureCoords,BufferStorageFlags.MapWriteBit);
 
 
-			GL.DisableVertexArrayAttrib(VAO, 1);
+			GL.VertexArrayAttribFormat(
+				VAO,
+				0,
+				2,
+				VertexAttribType.Float,
+				false,
+				0);
+			GL.VertexArrayAttribFormat(
+				VAO,
+				1,
+				2,
+				VertexAttribType.Float,
+				false,
+				0);
+
+			GL.VertexArrayVertexBuffer(VAO, 0, VBO, IntPtr.Zero, 8);
+			GL.VertexArrayVertexBuffer(VAO, 1, VBOTexCoords, IntPtr.Zero, 8);
+
 			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 			GL.BindVertexArray(0);
 		}
@@ -58,13 +71,11 @@ namespace KoC.GameEngine.Draw.Text
 		public void RenderCharacter()
 		{
 			GL.BindVertexArray(VAO);
-			GL.BindBuffer(BufferTarget.ArrayBuffer,VBO);
 			GL.EnableVertexArrayAttrib(VAO, 0);
 			GL.EnableVertexArrayAttrib(VAO, 1);
 			
 			GL.DrawArrays(PrimitiveType.Triangles, 0,6);
 			
-			GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 			GL.DisableVertexArrayAttrib(VAO, 0);
 			GL.DisableVertexArrayAttrib(VAO, 1);
 			GL.BindVertexArray(0);

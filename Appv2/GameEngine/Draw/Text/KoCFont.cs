@@ -4,7 +4,10 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Text;
+using System.Web.Script.Serialization;
+
 namespace KoC.GameEngine.Draw.Text
 {
 	public class KoCFont : IDisposable
@@ -16,6 +19,7 @@ namespace KoC.GameEngine.Draw.Text
 		private float avgWidthNormalized;
 		private int last;
 		private int first;
+		Texture2D texture;
 		Font font;
 		public Character this[char c]
 		{
@@ -27,6 +31,10 @@ namespace KoC.GameEngine.Draw.Text
 				}
 				return characters[GetCharIndex(c)];
 			}
+		}
+		public void BindTexture()
+		{
+			texture.Bind(TextureUnit.Texture0);
 		}
 		/// <summary>
 		/// Constructs KoC Font value type
@@ -61,26 +69,39 @@ namespace KoC.GameEngine.Draw.Text
 
 			bmp = new Bitmap((int)size.Width - 5, (int)size.Height - 5);
 			avgWidth = (float)bmp.Width / charsToDraw.Length;
-			avgWidthNormalized = 1f / bmp.Width;
+			avgWidthNormalized = 1f / avgWidth;
+
 			g = Graphics.FromImage(bmp);
 
-			PointF rect = new PointF(-5, -5);
+			PointF rect = new PointF(-5, 5);
 
 			g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			g.PixelOffsetMode = PixelOffsetMode.None;
 			g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
 
 			g.DrawString(charsToDraw, font, new SolidBrush(Color.Black), rect);
-			Texture2D texture = new Texture2D(TextureTarget.Texture2D, (Bitmap)bmp, font.Name);
+			Bitmap rlBitmap = new Bitmap(bmp);
+			rlBitmap.Save("Text.png");
+			texture = new Texture2D(TextureTarget.Texture2D, rlBitmap, font.Name);
 			StaticHolder.textureHandler.AddTexture(texture);
 			StaticHolder.CheckGLError();
 
 			List<Character> charList = new List<Character>();
 			for (int i = 0; i < charsToDraw.Length; i++)
 			{
+				Vector2 top = new Vector2(avgWidthNormalized*i + avgWidthNormalized,1.0f);
+				Vector2 bottom = new Vector2(avgWidthNormalized*i,0.0f);
 				charList.Add(
-					new Character(charsToDraw[i], font, new float[4] { avgWidthNormalized * i, 1.0f, avgWidthNormalized * i + avgWidthNormalized, 0.0f })
+					new Character(charsToDraw[i], font, new float[4] {top.X,top.Y,bottom.X,bottom.Y})
 				);
+				Character c = charList[i];
+				string input = $"{c.c}\n";
+				foreach(float b in c.texCoords)
+				{
+					input += b.ToString();
+					input += "\n";
+				}
+				File.AppendAllText($@"C:\Users\Marcin\Source\Repos\PuccyDestroyerxXx\KoCEngine\Appv2\bin\Debug\Characters\chars1.txt",input);
 			}
 			StaticHolder.CheckGLError();
 			characters = charList.ToArray();
