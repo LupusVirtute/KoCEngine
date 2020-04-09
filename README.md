@@ -10,11 +10,11 @@ Koxes Of Code Team
 - [x] Rendering Objects instead of Mesh
 - [x] Texture Implentation
 - [x] Simple Camera Object and Interface
-- [ ] Font Rendering  ~80% Done
-- [ ] Camera Movement and Rotation ~70% Done
+- [x] Font Rendering
+- [ ] Camera Movement and Rotation ~50% Done
 - [ ] Checking Points if they are in camera view  
 - [ ] Possible Optimizations  
-- [ ] Clean Beautify Code 10% Done 
+- [ ] Clean/Beautify Code 5% Done 
 - [ ] Make everything handled by interfaces  
 - [ ] Start Creating NPCS
 - [ ] Make Basic AI
