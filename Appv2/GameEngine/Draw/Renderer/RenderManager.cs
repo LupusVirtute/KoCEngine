@@ -78,8 +78,7 @@ namespace KoC.GameEngine.Draw.Renderer
 			ShaderCompile shc2 = new ShaderCompile("Shaders/TxtVerShader.vert",ShaderType.VertexShader);
 			Shader sh = new Shader(new ShaderCompile[2] { shc,shc2},"TxtShader");
 
-			KoCFont font = new KoCFont(new System.Drawing.Font("Consolas", 6f));
-			text = new EngineText2D(font,"YES FINALLY I CAN JERK OFF TO THIS",_TxTProgram,new Vector2(32f,32f));
+			KoCFont font = new KoCFont(new System.Drawing.Font("Consolas", 64f));
 			
 			FOV = 90.0f;
 			renderDistance = 100.0f;
@@ -113,7 +112,6 @@ namespace KoC.GameEngine.Draw.Renderer
 			_TxTProgram = FileCompiler.CreateProgram(shaders);
 			StaticHolder.CheckGLError();
 
-			text = new EngineText2D(new KoCFont(new System.Drawing.Font("Consolas", 6f)), "YES FINALLY I CAN JERK OFF TO THIS", _TxTProgram, new Vector2(0f,0f));
 			ReloadProjections(MainC.game.Width / MainC.game.Height);
 		}
 		public void SetProgram(int program)
@@ -146,7 +144,7 @@ namespace KoC.GameEngine.Draw.Renderer
 			//Switch ortho or perspectiveFOV
 
 			if (GL.IsProgram(_program)) GL.UseProgram(_program);
-			if (!_bortho)
+			if (_bortho)
 			{
 				GL.UniformMatrix4(loc, false, ref ortho);
 			}
@@ -166,7 +164,11 @@ namespace KoC.GameEngine.Draw.Renderer
 			//UI - TODO
 			GL.UseProgram(_TxTProgram);
 			GL.UniformMatrix4(loc, false, ref ortho);
-			text.Render();
+			StaticHolder.textHandler.RenderText(
+				GL.GetUniformLocation(_TxTProgram, "charOffset"),
+				GL.GetUniformLocation(_TxTProgram,"gSampler"));
+
+
 			StaticHolder.CheckGLError();
 
 		}

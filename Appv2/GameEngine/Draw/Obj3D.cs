@@ -54,12 +54,19 @@ namespace KoC.GameEngine.Draw
 		/// Heavier performance Rendering Method use only when necessary and with different program shaders
 		/// </summary>
 		/// <param name="prog">program to use</param>
-		public void RenderObjP(int prog)
+        /// <param name="gSampLoc">Sampler Location in shader to use</param>
+		public void RenderObjP(int prog,int gSampLoc)
         {
 			GL.UseProgram(prog);
             GL.UniformMatrix4(22, false, ref objMatrix);
+            GL.Uniform1(gSampLoc, 0);
+            
             mesh.Render();
         }
+        /// <summary>
+        /// Renders object with texture
+        /// </summary>
+        /// <param name="gSampLoc">Sampler Location in shader to use</param>
 		public void RenderObj(int gSampLoc)
 		{
 			GL.UniformMatrix4(22,false,ref objMatrix);
@@ -76,7 +83,8 @@ namespace KoC.GameEngine.Draw
 		{
 			int loc = GL.GetUniformLocation(prog, "modelView");
 			GL.UniformMatrix4(loc, false, ref objMatrix);
-			mesh.Render();
+            tex.Bind(TextureUnit.Texture0);
+            mesh.Render();
 		}
         /// <summary>
         /// Multiplies the Rotation Matrix of this 3D Mesh.

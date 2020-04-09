@@ -9,15 +9,13 @@ namespace KoC.GameEngine.Draw.Text
 		KoCFont font;
 		string text;
 		Matrix4[] matrixArray;
-		int program;
 		Vector2 origin;
-		public EngineText2D(KoCFont font,string text,int program,Vector2 origin)
+		public EngineText2D(KoCFont font,string text,Vector2 origin)
 		{
 
 			this.origin = origin;
 			this.font = font;
 			this.text = text;
-			this.program = program;
 			matrixArray	= font.CalculateMatrices(text, origin.X, origin.Y);
 		}
 		public void ChangeText(string text)
@@ -31,13 +29,13 @@ namespace KoC.GameEngine.Draw.Text
 			origin = newOrigin;
 			matrixArray = font.CalculateMatrices(text, origin.X, origin.Y);
 		}
-		public void Render()
+		public void Render(int charOffSetLoc)
 		{
 			font.BindTexture();
-			int loc = GL.GetUniformLocation(program,"charOffset");
+
 			for(int i = 0; i < matrixArray.Length; i++)
 			{
-				GL.UniformMatrix4(loc,false,ref matrixArray[i]);
+				GL.UniformMatrix4(charOffSetLoc,false,ref matrixArray[i]);
 				font[Convert.ToChar(text[i])].RenderCharacter();
 			}
 		}

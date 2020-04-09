@@ -8,6 +8,8 @@ using System.Runtime;
 using System.Collections.Generic;
 using System.Threading;
 using KoC.GameEngine.Draw.Renderer;
+using KoC.GameEngine.Draw.Text;
+using System.Drawing;
 
 namespace KoC.GameEngine
 {
@@ -32,6 +34,11 @@ namespace KoC.GameEngine
 			Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
 			powerLimiter = true;
 			StaticHolder.textureHandler = new TextureHandler();
+			Font font = new Font("Arial",30f);
+
+			EngineText2D[] text = new EngineText2D[1];
+			text[0] = new EngineText2D(new KoCFont(new Font("Consolas", 64f)), "AEBCD", new Vector2(0f, 0f));
+			StaticHolder.textHandler = new TextHandler(text);
 			KeyDown += InputHandler.onKeyDown;
 			KeyUp += InputHandler.onKeyUp;
 		}
@@ -110,6 +117,7 @@ namespace KoC.GameEngine
 				m[i].Dispose();
 
 			}
+			StaticHolder.textureHandler.Delete();
 			base.Exit();
 		}
 		protected override void OnResize(EventArgs e)

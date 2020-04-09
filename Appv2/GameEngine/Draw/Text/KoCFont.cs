@@ -6,7 +6,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Text;
-using System.Web.Script.Serialization;
 
 namespace KoC.GameEngine.Draw.Text
 {
@@ -15,7 +14,6 @@ namespace KoC.GameEngine.Draw.Text
 		private Character[] characters;
 		private float scaler;
 		private Vector3 origin;
-		private float avgWidth;
 		private float avgWidthNormalized;
 		private int last;
 		private int first;
@@ -47,7 +45,7 @@ namespace KoC.GameEngine.Draw.Text
 			this.first = first;
 			this.last = last;
 			this.font = font;
-			Image bmp = new Bitmap(1, 1);
+			Image bmp = new Bitmap(1,1);
 
 			Graphics g = Graphics.FromImage(bmp);
 
@@ -67,43 +65,50 @@ namespace KoC.GameEngine.Draw.Text
 			}
 			SizeF size = g.MeasureString(charsToDraw, font, new PointF(0f, 0f), StringFormat.GenericDefault);
 
-			bmp = new Bitmap((int)size.Width - 5, (int)size.Height - 5);
-			avgWidth = (float)bmp.Width / charsToDraw.Length;
-			avgWidthNormalized = 1f / avgWidth;
+			bmp = new Bitmap((int)size.Width+6, (int)size.Height);
+			avgWidthNormalized = ((float)bmp.Width / charsToDraw.Length)/bmp.Width;
+
+
 
 			g = Graphics.FromImage(bmp);
-
-			PointF rect = new PointF(-5, 5);
+			
+			PointF rect = new PointF(0, 0);
 
 			g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			g.PixelOffsetMode = PixelOffsetMode.None;
 			g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
 
-			g.DrawString(charsToDraw, font, new SolidBrush(Color.Black), rect);
+			g.DrawString(charsToDraw, font, new SolidBrush(Color.White), rect);
+
 			Bitmap rlBitmap = new Bitmap(bmp);
+			rlBitmap.MakeTransparent();
 			rlBitmap.Save("Text.png");
 			texture = new Texture2D(TextureTarget.Texture2D, rlBitmap, font.Name);
-			StaticHolder.textureHandler.AddTexture(texture);
-			StaticHolder.CheckGLError();
+			bmp.Dispose();
+			rlBitmap.Dispose();
+			g.Dispose();
 
 			List<Character> charList = new List<Character>();
 			for (int i = 0; i < charsToDraw.Length; i++)
 			{
-				Vector2 top = new Vector2(avgWidthNormalized*i + avgWidthNormalized,1.0f);
-				Vector2 bottom = new Vector2(avgWidthNormalized*i,0.0f);
+				Vector2 topleft = new Vector2(avgWidthNormalized * i, 1.0f);
+				Vector2 topright = new Vector2(avgWidthNormalized * i + avgWidthNormalized, 1.0f);
+				Vector2 bottomright = new Vector2(avgWidthNormalized * i + avgWidthNormalized,0.0f);
+				Vector2 bottomleft = new Vector2(avgWidthNormalized * i,0.0f);
+
+				float[] textureCoordsTable = new float[12] {
+					topleft.X, topleft.Y,
+					topright.X, topright.Y,
+					bottomright.X, bottomright.Y,
+					bottomright.X, bottomright.Y,
+					bottomleft.X, bottomleft.Y,
+					topleft.X, topleft.Y,
+				}; 
 				charList.Add(
-					new Character(charsToDraw[i], font, new float[4] {top.X,top.Y,bottom.X,bottom.Y})
+					new Character(charsToDraw[i], font, textureCoordsTable)
 				);
-				Character c = charList[i];
-				string input = $"{c.c}\n";
-				foreach(float b in c.texCoords)
-				{
-					input += b.ToString();
-					input += "\n";
-				}
-				File.AppendAllText($@"C:\Users\Marcin\Source\Repos\PuccyDestroyerxXx\KoCEngine\Appv2\bin\Debug\Characters\chars1.txt",input);
 			}
-			StaticHolder.CheckGLError();
+
 			characters = charList.ToArray();
 		}
 		public KoCFont(Character[] characters, string name)

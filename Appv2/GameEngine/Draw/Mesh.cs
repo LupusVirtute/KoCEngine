@@ -143,16 +143,12 @@ namespace KoC.GameEngine.Draw
 			GL.EnableVertexArrayAttrib(_vertexArray, 0);
 			GL.EnableVertexArrayAttrib(_vertexArray, 1);
 			//GL.EnableVertexArrayAttrib(_vertexArray, 2);
-			StaticHolder.CheckGLError();
 
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexingBuffer);
-			StaticHolder.CheckGLError();
 
 			GL.DrawElements(PrimitiveType.Triangles, Fl, DrawElementsType.UnsignedInt, 0);
-			StaticHolder.CheckGLError();
 
 			GL.BindBuffer(BufferTarget.ElementArrayBuffer,0);
-			StaticHolder.CheckGLError();
 
 			GL.DisableVertexArrayAttrib(_vertexArray,0);
 			GL.DisableVertexArrayAttrib(_vertexArray,1);

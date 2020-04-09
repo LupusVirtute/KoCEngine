@@ -2,6 +2,7 @@
 using OpenTK;
 using System.Collections.Generic;
 using System.Drawing;
+using OpenTK.Graphics.OpenGL4;
 
 namespace KoC.GameEngine.Draw.Text
 {
@@ -34,7 +35,7 @@ namespace KoC.GameEngine.Draw.Text
         }
         public void AddTextUsingDefaultFont(string text,Vector2 origin)
         {
-            EngineText2D engTxT2D = new EngineText2D(defaultFont,text,defaultShader.ProgramID,origin);
+            EngineText2D engTxT2D = new EngineText2D(defaultFont,text,origin);
             AddText(engTxT2D);
         }
         public void AddText(EngineText2D TxT)
@@ -45,11 +46,12 @@ namespace KoC.GameEngine.Draw.Text
         {
             texts.RemoveAt(id);
         }
-        public void RenderText()
+        public void RenderText(int charOffSetLoc,int gSamplerLocation)
         {
-            for(int i = 0; i < texts.Count; i++)
+            GL.Uniform1(gSamplerLocation, 0);
+            for (int i = 0; i < texts.Count; i++)
             {
-                texts[i].Render();
+                texts[i].Render(charOffSetLoc);
             }
         }
     }

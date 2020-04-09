@@ -11,11 +11,11 @@ namespace KoC.GameEngine.Draw
 		private readonly int _texture = -32;
 		private readonly TextureTarget textureTarget;
 
-		public Texture2D(TextureTarget x, Bitmap bitmap,string name,bool wrapS = true,bool filter = true)
+		public Texture2D(TextureTarget targetTexture, Bitmap bitmap,string name,bool isTextureHandler = false,bool wrapS = true,bool filter = true)
 		{
-			textureTarget = x;
+			textureTarget = targetTexture;
 			_texture = GL.GenTexture();
-			GL.BindTexture(x, _texture);
+			GL.BindTexture(targetTexture, _texture);
 			bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
 			if (filter)
 			{
@@ -27,12 +27,14 @@ namespace KoC.GameEngine.Draw
 				GL.TextureParameter(_texture, TextureParameterName.TextureWrapS, (int)All.Repeat);
 				GL.TextureParameter(_texture, TextureParameterName.TextureWrapT, (int)All.Repeat);
 			}
-			GL.TexImage2D(x, 0, PixelInternalFormat.Rgba, bitmap.Width, bitmap.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
+			GL.TexImage2D(targetTexture, 0, PixelInternalFormat.Rgba, bitmap.Width, bitmap.Height, 0, OpenTK.Graphics.OpenGL4.PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
 			BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-			GL.TexSubImage2D(x,0,0,0,bitmapData.Width,bitmapData.Height,OpenTK.Graphics.OpenGL4.PixelFormat.Bgra,PixelType.UnsignedByte,bitmapData.Scan0);
+			GL.TexSubImage2D(targetTexture,0,0,0,bitmapData.Width,bitmapData.Height,OpenTK.Graphics.OpenGL4.PixelFormat.Bgra,PixelType.UnsignedByte,bitmapData.Scan0);
 			bitmap.UnlockBits(bitmapData);
 			bitmap.Dispose();
-			GL.BindTexture(x,0);
+			GL.BindTexture(targetTexture,0);
+			if(!isTextureHandler) 
+				StaticHolder.textureHandler.AddTexture(this);
 		}
 		public bool IsNull()
 		{

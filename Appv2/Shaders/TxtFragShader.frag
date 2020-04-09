@@ -7,5 +7,9 @@ uniform vec3 textColor;
 
 void main(void)
 {
-	FragColor =  texture2D(gSampler,TexCoord0) - vec4(1.0f,1.0f,1.0f,.5f);
+	vec4 textureRGB =  texture(gSampler,TexCoord0);
+	if(textureRGB.a < 0.1){
+		discard;
+	}
+	FragColor = textureRGB;
 }

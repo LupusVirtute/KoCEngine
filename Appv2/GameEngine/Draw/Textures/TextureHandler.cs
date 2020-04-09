@@ -6,7 +6,11 @@ namespace KoC.GameEngine.Draw
 {
     public class TextureHandler : ITextureHandler
     {
-        private Texture2D noTexture = new Texture2D(TextureTarget.Texture2D, Files.FileParser.LoadBitMap("DefaultTexture\\NoTexture.bmp"), "NullTexture");
+        private Texture2D noTexture = new Texture2D(TextureTarget.Texture2D, Files.FileParser.LoadBitMap("DefaultTexture\\NoTexture.bmp"), "NullTexture",true);
+        public TextureHandler()
+        {
+
+        }
         public Texture2D NoTexture
         { 
             get
@@ -23,6 +27,11 @@ namespace KoC.GameEngine.Draw
                 if (textures[i].name == name) return textures[i];
             }
             return noTexture;
+        }
+        public void Delete()
+        {
+            for (int i = 0; i < textures.Count; i++)
+                textures[i].Dispose();
         }
         public Texture2D this[string name]
         {
