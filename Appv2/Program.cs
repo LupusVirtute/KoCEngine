@@ -1,4 +1,4 @@
-﻿
+﻿#define GAME3D
 using System.Threading;
 
 namespace KoC

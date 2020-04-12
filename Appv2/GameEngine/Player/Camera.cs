@@ -9,8 +9,6 @@ namespace KoC.GameEngine.Player
 		private Vector3 _CamPos;
 		private Vector3 _Front;
 		private Vector3 _Up;
-		private float angleH;
-		private float angleV;
 		private Matrix4 CameraMatrix;
 		public Matrix4 GetCameraMatrix
 		{
@@ -66,7 +64,7 @@ namespace KoC.GameEngine.Player
 		}
 		private void CalculateCamMatrix()
 		{
-			CameraMatrix = Matrix4.LookAt(_CamPos,_CamPos + _Front, _Up) * Matrix4.CreateTranslation(-_CamPos);
+			CameraMatrix = Matrix4.LookAt(_CamPos,_CamPos + _Target, _Up) * Matrix4.CreateTranslation(-_CamPos);
 		}
 		public void CameraMove(Vector3 vec,float speed)
 		{

@@ -69,14 +69,15 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameEngine\Files\Comparators\FileFormatParsers\obj\ObjectFileFormatParse.cs" />
     <Compile Include="GameEngine\Files\Comparators\ObjFileStrings.cs" />
-    <Compile Include="GameEngine\Files\Comparators\PrefixParsers\FacePrefixParser.cs" />
-    <Compile Include="GameEngine\Files\Comparators\PrefixParsers\MaterialPrefixParser.cs" />
-    <Compile Include="GameEngine\Files\Comparators\PrefixParsers\NormalsPrefixParser.cs" />
-    <Compile Include="GameEngine\Files\Comparators\PrefixParsers\ObjFormatPrefixes.cs" />
-    <Compile Include="GameEngine\Files\Comparators\PrefixParsers\ObjPrefixParser.cs" />
-    <Compile Include="GameEngine\Files\Comparators\PrefixParsers\SmoothShadingPrefixParser.cs" />
-    <Compile Include="GameEngine\Files\Comparators\PrefixParsers\TextureCoordsPrefixParser.cs" />
+    <Compile Include="GameEngine\Files\Comparators\FileFormatParsers\obj\PrefixParsers\FacePrefixParser.cs" />
+    <Compile Include="GameEngine\Files\Comparators\FileFormatParsers\obj\PrefixParsers\MaterialPrefixParser.cs" />
+    <Compile Include="GameEngine\Files\Comparators\FileFormatParsers\obj\PrefixParsers\NormalsPrefixParser.cs" />
+    <Compile Include="GameEngine\Files\Comparators\FileFormatParsers\obj\PrefixParsers\ObjFormatPrefixes.cs" />
+    <Compile Include="GameEngine\Files\Comparators\FileFormatParsers\obj\PrefixParsers\ObjPrefixParser.cs" />
+    <Compile Include="GameEngine\Files\Comparators\FileFormatParsers\obj\PrefixParsers\SmoothShadingPrefixParser.cs" />
+    <Compile Include="GameEngine\Files\Comparators\FileFormatParsers\obj\PrefixParsers\TextureCoordsPrefixParser.cs" />
     <Compile Include="GameEngine\Files\GameFile.cs" />
     <Compile Include="GameEngine\Files\GameFilesParsers\IFileParser.cs" />
     <Compile Include="GameEngine\Files\GameFilesParsers\MeshFileParser.cs" />
@@ -94,20 +95,22 @@
     <Compile Include="GameEngine\Draw\Text\TextHandler.cs" />
     <Compile Include="GameEngine\Files\Comparators\IPrefixParser.cs" />
     <Compile Include="GameEngine\Files\Comparators\VectorTypeConverter.cs" />
-    <Compile Include="GameEngine\Files\Comparators\PrefixParsers\VerticePrefixParser.cs" />
+    <Compile Include="GameEngine\Files\Comparators\FileFormatParsers\obj\PrefixParsers\VerticePrefixParser.cs" />
     <Compile Include="GameEngine\Files\FileCompiler.cs" />
     <Compile Include="GameEngine\InputHandler.cs" />
     <Compile Include="GameEngine\Draw\Textures\Texture2D.cs" />
     <Compile Include="GameEngine\Files\FileParser.cs" />
     <Compile Include="GameEngine\Game.cs" />
+    <Compile Include="GameEngine\Loader\LoaderSettings.cs" />
     <Compile Include="GameEngine\Maths.cs" />
     <Compile Include="GameEngine\Player\Camera.cs" />
     <Compile Include="GameEngine\Player\ICamera.cs" />
     <Compile Include="GameEngine\ShaderManager\IShaderManager.cs" />
+    <Compile Include="GameEngine\ShaderManager\ShaderProgram.cs" />
     <Compile Include="GameEngine\ShaderManager\Shader.cs" />
-    <Compile Include="GameEngine\ShaderManager\ShaderCompile.cs" />
     <Compile Include="GameEngine\ShaderManager\ShaderManager.cs" />
     <Compile Include="GameEngine\StaticHolder.cs" />
+    <Compile Include="GameEngine\Utilities\3D\PointManipulation.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

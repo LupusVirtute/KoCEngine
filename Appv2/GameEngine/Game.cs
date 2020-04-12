@@ -10,13 +10,13 @@ using System.Threading;
 using KoC.GameEngine.Draw.Renderer;
 using KoC.GameEngine.Draw.Text;
 using System.Drawing;
+using KoC.GameEngine.ShaderManager;
 
 namespace KoC.GameEngine
 {
 	public sealed class Game : GameWindow
 	{
 		private bool powerLimiter;
-		private Mesh[] m;
 
 		//Constructor
 		public Game() : base(
@@ -65,30 +65,33 @@ namespace KoC.GameEngine
 		protected override void OnLoad(EventArgs e)
 		{
 			CursorVisible = true;
-			int[] shaders = new int[2];
-			shaders[0] = FileCompiler.CompileShader(ShaderType.VertexShader, @"Shaders\verShader.vert");
-			shaders[1] = FileCompiler.CompileShader(ShaderType.FragmentShader, @"Shaders\fragShader.frag");
+			Shader[] shaders = new Shader[2];
+			shaders[0] = new Shader(@"Shaders\verShader.vert", ShaderType.VertexShader);
+			shaders[1] = new Shader(@"Shaders\fragShader.frag", ShaderType.FragmentShader);
 
-			int _program = FileCompiler.CreateProgram(shaders);
+			ShaderProgram _program = new ShaderProgram(shaders,"main");
+
 			GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-			//GL.FrontFace(FrontFaceDirection.Cw);
-			//GL.CullFace(CullFaceMode.Front);
 
 			GL.PatchParameter(PatchParameterInt.PatchVertices, 3);
+			
 			GL.Enable(EnableCap.DepthTest);
+			GL.Enable(EnableCap.Blend);
+
+			GL.BlendFunc(BlendingFactor.SrcAlpha,BlendingFactor.OneMinusSrcAlpha);
 			GL.DepthFunc(DepthFunction.Less);
 
 			Closed += OnClosed;
-			m = FileParser.ParseMeshFile("iron_anvil.obj");
-			//m = FileParser.ParseFile("C:/Users/Marcin/Desktop/cube.obj");
-			//m[0].Move(1.0f,2.0f,0.0f);
+
+			Mesh[] m = new Mesh[2];
 			GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
 			GC.Collect();
 
-			List<Obj3D> d3objli = new List<Obj3D>();
+
+			List<Obj3D> Obj3DList = new List<Obj3D>();
 			for(int i = 0; i < m.Length; i++)
 			{
-				d3objli.Add(
+				Obj3DList.Add(
 					new Obj3D(
 						ref m[i],
 						new Vector3(0f,0f,-10f),
@@ -100,7 +103,7 @@ namespace KoC.GameEngine
 			Vector3 CameraPos		= new Vector3(1.0f, 1.0f, -10.0f);
 			Vector3 CameraTarget	= new Vector3(0.45f, 0.0f, 1.0f);
 
-			StaticHolder.mainRender = new RenderManager(d3objli, new Player.Camera(CameraTarget,CameraPos),_program);
+			StaticHolder.mainRender = new RenderManager(Obj3DList, new Player.Camera(CameraTarget,CameraPos),_program);
 			StaticHolder.mainRender.ReloadProjections(Width,Height);
 
 			base.OnLoad(e);
@@ -112,18 +115,13 @@ namespace KoC.GameEngine
 		public override void Exit()
 		{
 			StaticHolder.mainRender.Delete();
-			for (int i = 0, l = m.Length; i < l; i++)
-			{
-				m[i].Dispose();
-
-			}
 			StaticHolder.textureHandler.Delete();
 			base.Exit();
 		}
 		protected override void OnResize(EventArgs e)
 		{
 			float asp;
-			GL.Viewport(this.ClientRectangle);
+			GL.Viewport(ClientRectangle);
 			asp = StaticHolder.GetRatio(Width,Height);
 			StaticHolder.mainRender.ReloadProjections(asp);
 			base.OnResize(e);
@@ -148,7 +146,9 @@ namespace KoC.GameEngine
 				SwapBuffers();
 			}
 			//Error Catch
+#if DEBUG
 			StaticHolder.CheckGLError();
+#endif
 		}
 		#endregion Overrides
 	}

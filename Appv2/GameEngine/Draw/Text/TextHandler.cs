@@ -10,7 +10,6 @@ namespace KoC.GameEngine.Draw.Text
     {
         List<EngineText2D> texts = new List<EngineText2D>();
         KoCFont defaultFont;
-        Shader defaultShader;
         public TextHandler(EngineText2D[] texts)
         {
             this.texts = new List<EngineText2D>(texts);

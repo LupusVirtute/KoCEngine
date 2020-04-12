@@ -1,35 +1,16 @@
-﻿namespace KoC.GameEngine.ShaderManager
+﻿using OpenTK.Graphics.OpenGL4;
+
+namespace KoC.GameEngine.ShaderManager
 {
     public struct Shader
     {
-        public int ProgramID { get; private set; }
-		public string Name { get; private set; }
-		ShaderCompile[] compileShader;
-        public Shader(ShaderCompile[] shader, string name)
-        {
-            this.Name = name;
-            compileShader = shader;
-            int[] shaderID = new int[shader.Length];
-            for (int i = 0; i < shader.Length; i++)
-            {
-                shaderID[i] = Files.FileCompiler.CompileShader(shader[i].shaderType,shader[i].filePath);
-            }
-            ProgramID = Files.FileCompiler.CreateProgram(shaderID);
-        }
-        /// <summary>
-        /// Reloads Shader
-        /// <br/><b>FREEZES RENDERING</b>
-        /// </summary>
-        public void ReloadShader()
-        {
-            StaticHolder.FreezeRender = true;
-            int[] shaderID = new int[compileShader.Length];
-            for (int i = 0; i < compileShader.Length; i++)
-            {
-                shaderID[i] = Files.FileCompiler.CompileShader(compileShader[i].shaderType, compileShader[i].filePath);
-            }
-            ProgramID = Files.FileCompiler.CreateProgram(shaderID);
+        public string filePath;
+        public ShaderType shaderType;
 
+        public Shader(string filePath, ShaderType shaderType)
+        {
+            this.filePath = filePath;
+            this.shaderType = shaderType;
         }
     }
 }
