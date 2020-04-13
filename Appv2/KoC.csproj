@@ -81,6 +81,7 @@
     <Compile Include="GameEngine\Files\GameFile.cs" />
     <Compile Include="GameEngine\Files\GameFilesParsers\IFileParser.cs" />
     <Compile Include="GameEngine\Files\GameFilesParsers\MeshFileParser.cs" />
+    <Compile Include="GameEngine\Files\GameFilesParsers\ShaderFileParser.cs" />
     <Compile Include="GameEngine\Files\GameFileType.cs" />
     <Compile Include="GameEngine\Loader\GameLoader.cs" />
     <Compile Include="GameEngine\Draw\Mesh.cs" />

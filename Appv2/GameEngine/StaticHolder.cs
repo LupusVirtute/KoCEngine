@@ -16,7 +16,7 @@ namespace KoC.GameEngine
 		public static GameLoader loader;
 
 
-		public static bool FreezeRender = false;
+		public static bool isRenderFreezed = false;
         public static void CheckGLError()
         {
 			#if (DEBUG)

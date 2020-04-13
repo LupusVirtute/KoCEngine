@@ -2,7 +2,6 @@
 using OpenTK.Graphics.OpenGL4;
 using System;
 using OpenTK.Graphics;
-using KoC.GameEngine.Files;
 using KoC.GameEngine.Draw;
 using System.Runtime;
 using System.Collections.Generic;
@@ -41,6 +40,7 @@ namespace KoC.GameEngine
 			StaticHolder.textHandler = new TextHandler(text);
 			KeyDown += InputHandler.onKeyDown;
 			KeyUp += InputHandler.onKeyUp;
+			StaticHolder.loader = new Loader.GameLoader();
 		}
 		/// <summary>
 		/// Switches Power Saving Mode if on can cause stutter.<br/>
@@ -106,6 +106,13 @@ namespace KoC.GameEngine
 			StaticHolder.mainRender = new RenderManager(Obj3DList, new Player.Camera(CameraTarget,CameraPos),_program);
 			StaticHolder.mainRender.ReloadProjections(Width,Height);
 
+			StaticHolder.isRenderFreezed = true;
+			while(!StaticHolder.loader.AreAllFilesReady())
+			{
+				Thread.Sleep(300);
+			}
+			StaticHolder.isRenderFreezed = false;
+			
 			base.OnLoad(e);
 		}
 		private void OnClosed(object s, EventArgs e)
@@ -132,7 +139,7 @@ namespace KoC.GameEngine
 		}
 		protected override void OnRenderFrame(FrameEventArgs e)
 		{
-			if (!StaticHolder.FreezeRender)
+			if (!StaticHolder.isRenderFreezed)
 			{
 				if (powerLimiter) Thread.Sleep(15);
 				Color4 backColor = new Color4(0, 0, 80, 255);

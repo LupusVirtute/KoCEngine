@@ -8,6 +8,15 @@ namespace KoC.GameEngine.Loader
 	public class GameLoader
 	{
 		public bool[] fileReady;
+		public bool AreAllFilesReady()
+		{
+			for(int i =0; i < fileReady.Length; i++)
+			{
+				if (!fileReady[i])
+					return false;
+			}
+			return true;
+		}
 		public GameFile[] LoadDefaults()
 		{
 			string[][] shaderFilesLocations = new string[LoaderSettings.ShaderLocation.Length][];

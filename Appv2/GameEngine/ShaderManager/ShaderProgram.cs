@@ -22,7 +22,7 @@
         /// </summary>
         public void ReloadShader()
         {
-            StaticHolder.FreezeRender = true;
+            StaticHolder.isRenderFreezed = true;
             int[] shaderID = new int[compileShader.Length];
             for (int i = 0; i < compileShader.Length; i++)
             {
