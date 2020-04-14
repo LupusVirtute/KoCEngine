@@ -11,6 +11,7 @@ Koxes Of Code Team
 - [x] Texture Implentation
 - [x] Simple Camera Object and Interface
 - [x] Font Rendering
+- [ ] Game Loader With Game Files
 - [ ] Camera Movement and Rotation ~50% Done
 - [ ] Checking Points if they are in camera view  
 - [ ] Possible Optimizations  
