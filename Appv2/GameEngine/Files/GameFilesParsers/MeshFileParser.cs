@@ -21,7 +21,7 @@ namespace KoC.GameEngine.Files.GameFilesParsers
 
         public T Parse<T>(GameFile file)
         {
-			if (typeof(T) != typeof(Mesh))
+			if (typeof(T) != typeof(Mesh[]))
 			{
 				throw new Exception("Type Exception Expected Type: Mesh");
 			}

@@ -32,14 +32,15 @@ namespace KoC.GameEngine
 		{
 			Title += ": OpenGL Version: " + GL.GetString(StringName.Version);
 			powerLimiter = true;
-			StaticHolder.textureHandler = new TextureHandler();
-			Font font = new Font("Arial",30f);
+
+			KeyDown += InputHandler.onKeyDown;
+			KeyUp += InputHandler.onKeyUp;
 
 			EngineText2D[] text = new EngineText2D[1];
 			text[0] = new EngineText2D(new KoCFont(new Font("Consolas", 64f)), "AEBCD", new Vector2(0f, 0f));
+			
+			StaticHolder.textureHandler = new TextureHandler();
 			StaticHolder.textHandler = new TextHandler(text);
-			KeyDown += InputHandler.onKeyDown;
-			KeyUp += InputHandler.onKeyUp;
 			StaticHolder.loader = new Loader.GameLoader();
 		}
 		/// <summary>
@@ -153,9 +154,9 @@ namespace KoC.GameEngine
 				SwapBuffers();
 			}
 			//Error Catch
-#if DEBUG
-			StaticHolder.CheckGLError();
-#endif
+			#if DEBUG
+				StaticHolder.CheckGLError();
+			#endif
 		}
 		#endregion Overrides
 	}

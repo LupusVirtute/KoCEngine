@@ -1,25 +1,33 @@
 ﻿using KoC.GameEngine.ShaderManager;
 using OpenTK;
 using System.Collections.Generic;
+using System;
 using System.Drawing;
 using OpenTK.Graphics.OpenGL4;
 
 namespace KoC.GameEngine.Draw.Text
 {
-    public class TextHandler
+    public class TextHandler : IDisposable
     {
         List<EngineText2D> texts = new List<EngineText2D>();
+        List<KoCFont> fonts = new List<KoCFont>();
         KoCFont defaultFont;
         public TextHandler(EngineText2D[] texts)
         {
             this.texts = new List<EngineText2D>(texts);
-            Font f = new Font("Consolas",6f);
+            Font f = new Font("Consolas",64f);
             defaultFont = new KoCFont(f);
         }
         public TextHandler(EngineText2D[] texts,Font f)
         {
             this.texts = new List<EngineText2D>(texts);
             defaultFont = new KoCFont(f);
+        }
+        public void Dispose()
+        {
+            defaultFont.Dispose();
+            for(int i=0; i < fonts.Length;i++)
+                fonts[i].Dispose();
         }
         /// <summary>
         /// Changes used default Font <br/>

@@ -17,7 +17,7 @@ namespace KoC.GameEngine.Draw.Text
 		public float[] texCoords;
 
 		Font font;
-		public Character(char charToDraw,Font font,float[] textureCoords)
+		public Character(char charToDraw,Font font,float[] textureCoords,int size)
 		{
 			texCoords = textureCoords;
 			this.font = font;
@@ -25,13 +25,14 @@ namespace KoC.GameEngine.Draw.Text
 			//VAO and VBO's Init
 			float[] charTable = new float[12]
 			{
-				-0.5f,  0.5f, // Top-left
-				 0.5f,  0.5f, // Top-right
-				 0.5f, -0.5f, // Bottom-right
-				 0.5f, -0.5f, // Bottom-right
-				-0.5f, -0.5f, // Bottom-left
-				-0.5f,  0.5f  // Top-left
+				-0.1f*size,  0.1f*size, // Top-left
+				 0.1f*size,  0.1f*size, // Top-right
+				 0.1f*size, -0.1f*size, // Bottom-right
+				 0.1f*size, -0.1f*size, // Bottom-right
+				-0.1f*size, -0.1f*size, // Bottom-left
+				-0.1f*size,  0.1f*size  // Top-left
 			};
+
 			VAO = GL.GenVertexArray();
 			VBO = GL.GenBuffer();
 			VBOTexCoords = GL.GenBuffer();
@@ -83,6 +84,7 @@ namespace KoC.GameEngine.Draw.Text
 		public void Dispose()
 		{
 			GL.DeleteBuffer(VBO);
+			GL.DeleteBuffer(VBOTexCoords);
 			GL.DeleteVertexArray(VAO);
 			GC.SuppressFinalize(this);
 		}

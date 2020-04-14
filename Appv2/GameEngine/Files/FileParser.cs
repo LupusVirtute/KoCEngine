@@ -18,13 +18,14 @@ namespace KoC.GameEngine.Files
 		{
 			IFileParser[] parsers =
 			{
-				new MeshFileParser()
+				new MeshFileParser(),
+				new ShaderFileParser()
 			};
 			IFileParser result = parsers.FirstOrDefault(o => o.IsMatch(file.FileType));
 			switch (file.FileType)
 			{
 				case GameFileType.Mesh:
-					result.Parse<Mesh>(file);
+					result.Parse<Mesh[]>(file);
 					break;
 				case GameFileType.Shader:
 					result.Parse<Shader>(file);

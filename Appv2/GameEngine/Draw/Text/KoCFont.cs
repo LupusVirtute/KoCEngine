@@ -34,35 +34,22 @@ namespace KoC.GameEngine.Draw.Text
 		{
 			texture.Bind(TextureUnit.Texture0);
 		}
-		/// <summary>
-		/// Constructs KoC Font value type
-		/// </summary>
-		/// <param name="font"></param>
-		/// <param name="first">First Character to include</param>
-		/// <param name="last">Last Character to include</param>
-		public KoCFont(Font font, int first = 32, int last = 127)
-		{
-			this.first = first;
-			this.last = last;
-			this.font = font;
+		#region InitSection
+		public string GenerateStringFromTo(int first,int last){
+			StringBuilder chars = new StringBuilder();
+			for (int i = first; i < last; i++)
+			{
+				chars.Append(Convert.ToChar(i));
+			}
+			return chars.ToString();
+		}
+		public Texture2D GenerateFontTexture2D(Font font,string charsToDraw){
 			Image bmp = new Bitmap(1,1);
 
 			Graphics g = Graphics.FromImage(bmp);
 
 			scaler = 1.0f;
 			origin = new Vector3();
-			this.font = font;
-			string charsToDraw;
-
-			{
-				StringBuilder chars = new StringBuilder();
-				for (int i = first; i < last; i++)
-				{
-					chars.Append(Convert.ToChar(i));
-				}
-				charsToDraw = chars.ToString();
-				chars.Clear();
-			}
 			SizeF size = g.MeasureString(charsToDraw, font, new PointF(0f, 0f), StringFormat.GenericDefault);
 
 			bmp = new Bitmap((int)size.Width+6, (int)size.Height);
@@ -73,7 +60,7 @@ namespace KoC.GameEngine.Draw.Text
 			g = Graphics.FromImage(bmp);
 			
 			PointF rect = new PointF(0, 0);
-
+			//Drawing Options
 			g.InterpolationMode = InterpolationMode.HighQualityBicubic;
 			g.PixelOffsetMode = PixelOffsetMode.None;
 			g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.SingleBitPerPixel;
@@ -82,12 +69,14 @@ namespace KoC.GameEngine.Draw.Text
 
 			Bitmap rlBitmap = new Bitmap(bmp);
 			rlBitmap.MakeTransparent();
-			rlBitmap.Save("Text.png");
-			texture = new Texture2D(TextureTarget.Texture2D, rlBitmap, font.Name);
-			bmp.Dispose();
-			rlBitmap.Dispose();
-			g.Dispose();
 
+			texture = new Texture2D(TextureTarget.Texture2D, rlBitmap, font.Name);
+			rlBitmap.Dispose();
+			bmp.Dispose();
+			g.Dispose();
+			return texture;
+		}
+		public List<Character> GenerateCharacters(int size){
 			List<Character> charList = new List<Character>();
 			for (int i = 0; i < charsToDraw.Length; i++)
 			{
@@ -105,11 +94,30 @@ namespace KoC.GameEngine.Draw.Text
 					topleft.X, topleft.Y,
 				}; 
 				charList.Add(
-					new Character(charsToDraw[i], font, textureCoordsTable)
+					new Character(charsToDraw[i], font, textureCoordsTable,size)
 				);
 			}
+			return charList;
+		}
+		#endregion
 
-			characters = charList.ToArray();
+
+		/// <summary>
+		/// Constructs KoC Font reference type
+		/// </summary>
+		/// <param name="font"></param>
+		/// <param name="first">First Character to include</param>
+		/// <param name="last">Last Character to include</param>
+		public KoCFont(Font font, int first = 32, int last = 127)
+		{
+			this.first = first;
+			this.last = last;
+			this.font = font;
+
+			string charsToDraw = GenerateStringFromTo(first,last);
+			GenerateFontTexture2D(font, charsToDraw);
+			characters = GenerateCharacters(font.Size()).ToArray();
+
 		}
 		public KoCFont(Character[] characters, string name)
 		{
