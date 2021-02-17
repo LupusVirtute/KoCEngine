@@ -1,6 +1,6 @@
 # KoCEngine2
 
-Graphics Engine Made by Marcin Grzywacz  
+3D Graphics Engine Made by Marcin Grzywacz  
 
 ## Todo:  
 - [x] Mesh Loading
